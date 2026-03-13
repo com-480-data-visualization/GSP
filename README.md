@@ -3,12 +3,13 @@
 | Student's name | SCIPER |
 | -------------- | ------ |
 | Mohamed Mamouri| 362231|
-| | |
+| Fares Fawzi| 337530|
 | | |
 
 [Milestone 1](#milestone-1) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
 
 ## Milestone 1 (20th March, 5pm)
+[Report](./MS1/README.md)
 
 **10% of the final grade**
 
