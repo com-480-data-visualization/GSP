@@ -28,3 +28,17 @@
 - < 24h: 80% of the grade for the milestone
 - < 48h: 70% of the grade for the milestone
 
+# Setup
+
+This project is based on Python 3.13. We recommend using a virtual environment to manage dependencies. You can create one using `venv`:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Then, install the required packages using `pip`:
+
+```bash
+pip install -r requirements.txt
+```
