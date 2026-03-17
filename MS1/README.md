@@ -17,6 +17,8 @@ We explore two datasets:
 1. Olympic medals by country and year
 2. Gross Domestic Product (GDP) by country and year
 
+Fares 
+
 ### Problematic
 
 <!---  > Frame the general topic of your visualization and the main axis that you want to develop.
@@ -27,25 +29,52 @@ We are interested in exploring the relationship between a country's economic per
 
 We take a critical stance on the meritocratic narrative often associated with Olympic success, which tends to focus on absolute achievements without considering the resources available to different countries. By analyzing the efficiency of medal wins in relation to GDP, we aim to provide a more nuanced perspective on Olympic success that accounts for economic disparities among nations.
 
+We will explore the temporal evolution of this relationship, as well as the differences across various sports, to identify patterns and insights that may not be immediately apparent from raw medal counts alone.
+
 ### Exploratory Data Analysis
 
 <!---  > Pre-processing of the data set you chose
 > - Show some basic statistics and get insights about the data
  --->
 
-To preprocess the data, we established a link between the country codes and filtered for years where both sources have data available.
+To preprocess the data, we established a link between the country codes and filtered for years where both sources have data available. Taiwan ...
+
+Fares
+Table:
+Number of entries/medals
+Number of sports
+Number of countries
+Number of years included (medals and GDP)
+Missing data?
+What columns / info?
+
+
+Plots:
+Mohamed 2026 GDP vs total medals scatterplot (one point per country)
+
+Dominik sports.  GDP/Medals pearson R (aggregate over contries)
+bar chart
+
+maybe pick a sport with high correlation
+
+
 
 ### Related work
 
 <!---  
 > - What others have already done with the data?
 > - Why is your approach original?
-> - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).
-> - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.  --->
+> - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).--->
 
 Works in economics found a positive relationship between GDP and Olympic success, but they often focus on absolute medal counts without considering the efficiency of medal wins in relation to economic resources [1]. Such mathematical models come with at several limitations: They have scarce visualizations of the relationships, especially on countries efficiency. They also do not distinguish between individual sports that may be more resource-intensive compared to others. Lastly, they omit the temporal evolution which is relevant since hits on the economy may become visible years later as Olympic success is often the result of long-term investments in sports infrastructure and training programs.
 
 Previous course projects [2] have explored the temporal evolution of Olympic medals focussing on countries, sports and genders. The economic development of countries and its relationship with Olympic success has been less explored. Instead of only praising success in terms of absolute success, we want to explore efficiency in terms of medals won as a function of GDP.
+
+Links to maps with interaction observer
+https://pudding.cool/2019/04/eu-regions/
+https://r2d3.us/visual-intro-to-machine-learning-part-1/
+Bar Chart Race
+https://flourish.studio/visualisations/bar-chart-race/
 
 [1] Bernard, A. B., & Busse, M. R. (2004). [Who wins the Olympic Games: Economic resources and medal totals](https://watermark02.silverchair.com/003465304774201824.pdf). Review of economics and statistics, 86(1), 413-417.
 
