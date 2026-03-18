@@ -15,7 +15,8 @@ Please, fill the following sections about your project.
 
 We explore two datasets:
 1. Olympic medals by country and year
-2. Gross Domestic Product (GDP) by country and year
+2. Gross Domestic Product (GDP) per capita by country and year
+Why do we use per capita? Resources per person are more relevant for Olympic success than total GDP, which can be skewed by population size. By using GDP per capita, we can better assess the efficiency of medal wins in relation to the economic resources available to each individual athlete.
 
 Fares 
 
@@ -25,7 +26,7 @@ Fares
 > - What am I trying to show with my visualization?
 > - Think of an overview for the project, your motivation, and the target audience.  --->
 
-We are interested in exploring the relationship between a country's economic performance (as measured by GDP) and its success in the Olympic Games (as measured by the number of medals won). Our motivation is to understand whether there is a correlation between a country's wealth and its athletic achievements on the global stage. The target audience for our visualization includes sports enthusiasts, economists, and policymakers who are interested in the intersection of sports and economics.
+We are interested in exploring the relationship between a country's economic performance (as measured by GDP) and its success in the Olympic Games (as measured by the number of medals won). Our motivation is to understand whether there is a correlation between a country's wealth and its sports achievements. The target audience for our visualization includes sports enthusiasts, economists, and policymakers who are interested in the intersection of sports and economics.
 
 We take a critical stance on the meritocratic narrative often associated with Olympic success, which tends to focus on absolute achievements without considering the resources available to different countries. By analyzing the efficiency of medal wins in relation to GDP, we aim to provide a more nuanced perspective on Olympic success that accounts for economic disparities among nations.
 
@@ -37,7 +38,7 @@ We will explore the temporal evolution of this relationship, as well as the diff
 > - Show some basic statistics and get insights about the data
  --->
 
-To preprocess the data, we established a link between the country codes and filtered for years where both sources have data available. Taiwan ...
+To preprocess the data, we established a link between the IOC and WB/ISO3 country codes and filtered for years where both sources have data available (from 1960 on). To measure relative GDP/capita strength, we ranked countries with available data within each year and expressed the rank as a percentage of the total number of countries with data available in that year. This allows us to compare the economic strength of medal-winning countries relative to their peers.
 
 Fares
 Table:
@@ -45,17 +46,47 @@ Number of entries/medals
 Number of sports
 Number of countries
 Number of years included (medals and GDP)
-Missing data?
+Missing data? (especially for GDP)
 What columns / info?
 
 
 Plots:
 Mohamed 2026 GDP vs total medals scatterplot (one point per country)
 
-Dominik sports.  GDP/Medals pearson R (aggregate over contries)
-bar chart
+We plotted the mean GDP rank of medal winners over years, separated by the season:
+![GDP rank by year](../figures/gdp_rank_by_year.pdf)
 
-maybe pick a sport with high correlation
+The plot confirms that the average medal winner always came from a top 30% GDP/capita country, with a much stronger relationship for winter sports. The relationships seems to have significantly weakened in the 90's with recent years in the summer olympics showing a slight increase in the average GDP rank of medal winners.
+
+The ten individual sports with the highest mean GDP rank of medal winners include expensive sports such as ice hockey, alpine skiing and equestrian:
+
+| Sport               | Avg. GDP/Capita Rank   |
+|:--------------------|:-----------|
+| Ice Hockey          | 91.9%      |
+| Alpine Skiing       | 91.5%      |
+| Curling             | 91.4%      |
+| Nordic Combined     | 91.3%      |
+| Equestrian Dressage | 91.0%      |
+| Equestrian          | 91.0%      |
+| Bobsleigh           | 90.9%      |
+| Softball            | 90.8%      |
+| Speed skating       | 90.3%      |
+| Snowboard           | 90.3%      |
+
+
+The lower end includes cheap racquet sports, gymnastics and martial arts:
+| Sport               | Avg. GDP/Capita Rank   |
+|:--------------------|:-----------|
+| Hockey              | 67.3%      |
+| Karate              | 66.6%      |
+| Taekwondo           | 66.5%      |
+| Gymnastics Rhythmic | 66.0%      |
+| Trampoline          | 64.7%      |
+| Weightlifting       | 64.7%      |
+| Wrestling           | 62.4%      |
+| Table Tennis        | 57.5%      |
+| Badminton           | 56.5%      |
+| Artistic swimming   | 54.0%      |
 
 
 
