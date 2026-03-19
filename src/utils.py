@@ -36,12 +36,31 @@ code_fix = {
     "BER": "BMU",  # Bermuda
     "OAR": "RUS",  # Olympic Athletes from Russia
     "SCG": "SRB",  # Serbia and Montenegro (approx.)
+    "ISV": "VIR",  # Virgin Islands, U.S.
+    "MRI": "MUS",  # Mauritius
+    "NIG": "NER",  # Niger
+    "PAR": "PRY",  # Paraguay
+    "SAM": "WSM",  # Samoa
+    "SRI": "LKA",  # Sri Lanka
+    "SUD": "SDN",  # Sudan
+    "TAN": "TZA",  # Tanzania
+    "TGA": "TON",  # Tonga
+    "TOG": "TGO",  # Togo
+    "GUA": "GTM",  # Guatemala
+    "BAR": "BRB",  # Barbados
+    "BUR": "BFA",  # Burkina Faso
 
     # Historical IOC codes mapped approximately to modern Germany
     "FRG": "DEU",  # West Germany
     "GDR": "DEU",  # East Germany
     "EUA": "DEU",  # Unified Team of Germany
+    "EUN": "RUS",  # Unified Team (ex-USSR), approximate
+    "URS": "RUS",  # USSR, approximate
+    "YUG": "SRB",  # Yugoslavia, approximate
+    "TCH": "CZE",  # Czechoslovakia, approximate
+    "AHO": "CUW",  # Netherlands Antilles, approximate modern proxy
 
-    # Note: TPE has no GDP row in this WB file (no TWN code here)
-    # Note: TCH, URS, YUG are historical entities and remain unmatched
+    # Still intentionally unmatched:
+    # TPE (Chinese Taipei): no TWN code in this WB extract
+    # AIN, BWI, EOR, IOA, IOP: teams/athlete groups, not countries
 }
