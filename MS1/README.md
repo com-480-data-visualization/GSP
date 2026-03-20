@@ -19,11 +19,17 @@ Please, fill the following sections about your project.
 Why do we use per capita? Resources per person are more relevant for Olympic success than total GDP, which can be skewed by population size. By using GDP per capita, we can better assess the efficiency of medal wins in relation to the economic resources available to each individual athlete.
  -->
 
-We explore two datasets: (1) Olympic medals by country and year [1], and (2) Gross Domestic Product (GDP) per capita by country and year [2]. We use GDP per capita rather than total GDP because we hypothesise that Olympic performance is more meaningfully related to resources available per person than to total economic size, which is strongly affected by population.
+We explore two datasets: (1) Olympic medals by country and year [1], and (2) Gross Domestic Product (GDP) per capita by country and year [2].
 
-The Olympics data is high quality and requires limited preprocessing. It spans 1896 to 2024, has no missing values, and provides consistent information on year, country, sport, medal, and event. However, the country codes are in the IOC format, used by the International Olympic Committee. To align it with the GDP per capita data, we restrict the analysis to 1960 onward and map IOC country codes, to World Bank and ISO3 three-letter country codes.
 
-The GDP per capita data [2] requires slightly more preprocessing. It spans 1960 to 2025 and contains missing GDP per capita values for some country-year observations. It also includes aggregate regional entries and uses a different country coding convention (World Bank and ISO3). We therefore interpolate missing values within each country series and merge it with the Olympics data by mapped country code and year. Some missing values remain for historical countries and special Olympic teams that do not have direct GDP data.
+The Olympics data is high quality and requires limited preprocessing. It spans 1896 to 2024, has no missing values, and provides consistent information on year, country, sport, medal, and event. However, the country codes are in the IOC format, used by the International Olympic Committee.
+
+
+The GDP per capita data [2] requires slightly more preprocessing. It spans 1960 to 2025 and contains missing GDP per capita values for some country-year observations. It also includes aggregate regional entries and uses a different country coding convention (World Bank and ISO3). 
+
+To align the Olympics data with the GDP per capita data, we restrict the analysis to 1960 onward and map IOC country codes to World Bank and ISO3 three-letter country codes. We then merge the GDP data by country code and year, so each Olympic medal entry is matched with the GDP value of that country in the same year. Some missing values remain for historical countries and special Olympic teams that do not have direct GDP data.
+
+Missing GDP values were interpolated (linear interpolation) within each country series using linear interpolation, reducing missing data from 17.06% to 1.50%. Some values remain missing because some entities have no GDP data at all.
 
 
 
@@ -37,7 +43,10 @@ We are interested in exploring the relationship between a country's economic per
 
 We take a critical stance on the meritocratic narrative often associated with Olympic success, which tends to focus on absolute achievements without considering the resources available to different countries. By analyzing the efficiency of medal wins in relation to GDP, we aim to provide a more nuanced perspective on Olympic success that accounts for economic disparities among nations.
 
-We will explore the temporal evolution of this relationship, as well as the differences across various sports, to identify patterns and insights that may not be immediately apparent from raw medal counts alone.
+We will explore the temporal evolution of this relationship, as well as the differences across various sports, to identify patterns and insights that may not be immediately apparent from raw medal counts alone. 
+
+TODO
+We use GDP per capita rather than total GDP because we hypothesise that Olympic performance is more meaningfully related to resources available per person than to total economic size, which is strongly affected by population.
 
 ### Exploratory Data Analysis
 
@@ -45,13 +54,7 @@ We will explore the temporal evolution of this relationship, as well as the diff
 > - Show some basic statistics and get insights about the data
  --->
 
-We start with the Olympics data, which covers 1896 to 2024, contains 21,261 medal entries across 92 sports and 174 countries, and has no missing values. It contains the columns `season`, `year`, `medal`, `country_code`, `country`, `games`, `sport`, `event_gender`, and `event_name`.
-
-The GDP data contains country codes and GDP per capita in US dollars from 1960 to 2025. Missing GDP values were interpolated (linear interpolation) within each country series using linear interpolation, reducing missing data from 17.06% to 1.50%. Some values remain missing because some entities have no GDP data at all.
-
-We map Olympic IOC codes to World Bank and ISO3 country codes and keep Olympic entries from 1960 onward. We then merge the GDP data by country code and year, so each Olympic medal entry is matched with the GDP value of that country in the same year. Some mismatches remain because the GDP data includes regions, while the Olympics data includes historical countries and special teams.
-
-The table below summarizes the final merged dataset.
+The table below summarizes the merged dataset:
 
 | Variable | Value |
 |---|---|
@@ -61,23 +64,17 @@ The table below summarizes the final merged dataset.
 | Number of years included (medals and GDP) | 25 |
 | Missing data (GDP) | 0.72% |
 
+The plot shows total medals against GDP by country in the latest available year and suggests a positive relationship between economic size and medal counts. Countries with the largest economies tend to appear toward the upper-right of the figure, while many lower-GDP countries cluster near very low medal totals. This is broadly consistent with the idea that larger economies often win more medals overall.
+
+![GDP country ](../figures/gdp_medals_bubble.png)
+
+At the same time, the pattern is not exact. Some countries with very large GDPs win fewer medals than their economic size alone might suggest, while some smaller economies achieve comparatively high medal totals. This indicates that GDP is associated with Olympic success, but does not fully determine it. Differences in how effectively countries translate resources into elite sport performance likely also matter.
 
 
-
-Plots:
-
-We plotted total medals against GDP (current US$) for each country in the latest available year, and the scatterplot shows a strong positive relationship between economic size and Olympic success. The richest countries, especially the United States and China, clearly dominate the upper-right corner of the figure, while most low-GDP countries remain clustered near zero medals. This confirms that larger economies tend to win substantially more medals overall.
-
-The scatterplot also shows that GDP alone does not fully determine Olympic performance. Some very large economies such as India and Brazil win fewer medals than their GDP size would suggest, while countries such as Great Britain, Australia and the Netherlands achieve very high medal counts despite having much smaller total GDP than the top two economies. This suggests that total economic size matters a lot, but the efficiency with which countries convert resources into medals still differs substantially.
-
-We also extended the analysis with a bubble chart using GDP per capita as bubble size and with a separate GDP-per-capita scatterplot. These plots indicate a weaker but still positive relationship: richer countries on a per-person basis are more likely to win medals, but the pattern is much less tight than for total GDP. This suggests that average wealth helps explain Olympic success, but much less than total national economic scale.
-
-One natural extension of this analysis would be to repeat the same comparison for different Olympic years, to check whether the relationship between GDP and medal counts becomes stronger or weaker over time. If the relationship were stronger in some periods, this could suggest that economic resources mattered more directly for training, infrastructure and international competitiveness in those years. If it were weaker in other periods, this could indicate that institutional quality, sport specialization, public investment choices or historical shocks played a relatively larger role than raw economic size alone.
-
-We plotted the mean GDP rank of medal winners over years, separated by the season:
+The next plot shows the mean GDP rank of medal winners over years, separated by the season:
 ![GDP rank by year](../figures/gdp_rank_by_year.png)
 
-The plot confirms that the average medal winner always came from a top 30% GDP/capita country, with a much stronger relationship for winter sports. The relationships seems to have significantly weakened in the 90's with recent years in the summer olympics showing a slight increase in the average GDP rank of medal winners.
+It confirms that the average medal winner always came from a top 30% GDP/capita country, with a much stronger relationship for winter sports. The relationships seems to have significantly weakened in the 90's with recent years in the summer olympics showing a slight increase in the average GDP rank of medal winners.
 
 The ten individual sports with the highest mean GDP rank of medal winners include expensive sports such as ice hockey, alpine skiing and equestrian:
 
