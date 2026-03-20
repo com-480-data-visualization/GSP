@@ -60,7 +60,7 @@ The table below summarizes the merged dataset:
 | Number of countries | 166 |
 | Number of Summer Olympics Events | 17 |
 | Number of Winter Olympics Events | 17 |
-| Missing data (GDP) | (9.81%) |
+| Missing data (GDP) | 9.81% |
 
 The plot shows total medals against GDP by country in the latest available year and suggests a positive relationship between economic size and medal counts. Countries with the largest economies tend to appear toward the upper-right of the figure, while many lower-GDP countries cluster near very low medal totals. This is broadly consistent with the idea that larger economies often win more medals overall.
 
