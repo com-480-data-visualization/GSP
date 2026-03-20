@@ -6,12 +6,10 @@
 | Fares Fawzi| 337530|
 | Dominik Glandorf| 397208|
 
-[Milestone 1](#milestone-1) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
+[Milestone 1](./MS1/README.md) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
 
 ## Milestone 1 (20th March, 5pm)
-[Report](./MS1/README.md)
-
-
+[Link to our Report](./MS1/README.md)
 
 ## Milestone 2 (17th April, 5pm)
 
