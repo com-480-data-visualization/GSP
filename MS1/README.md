@@ -65,7 +65,14 @@ The table below summarizes the final merged dataset.
 
 
 Plots:
-Mohamed 2026 GDP vs total medals scatterplot (one point per country)
+
+We plotted total medals against GDP (current US$) for each country in the latest available year, and the scatterplot shows a strong positive relationship between economic size and Olympic success. The richest countries, especially the United States and China, clearly dominate the upper-right corner of the figure, while most low-GDP countries remain clustered near zero medals. This confirms that larger economies tend to win substantially more medals overall.
+
+The scatterplot also shows that GDP alone does not fully determine Olympic performance. Some very large economies such as India and Brazil win fewer medals than their GDP size would suggest, while countries such as Great Britain, Australia and the Netherlands achieve very high medal counts despite having much smaller total GDP than the top two economies. This suggests that total economic size matters a lot, but the efficiency with which countries convert resources into medals still differs substantially.
+
+We also extended the analysis with a bubble chart using GDP per capita as bubble size and with a separate GDP-per-capita scatterplot. These plots indicate a weaker but still positive relationship: richer countries on a per-person basis are more likely to win medals, but the pattern is much less tight than for total GDP. This suggests that average wealth helps explain Olympic success, but much less than total national economic scale.
+
+One natural extension of this analysis would be to repeat the same comparison for different Olympic years, to check whether the relationship between GDP and medal counts becomes stronger or weaker over time. If the relationship were stronger in some periods, this could suggest that economic resources mattered more directly for training, infrastructure and international competitiveness in those years. If it were weaker in other periods, this could indicate that institutional quality, sport specialization, public investment choices or historical shocks played a relatively larger role than raw economic size alone.
 
 We plotted the mean GDP rank of medal winners over years, separated by the season:
 ![GDP rank by year](../figures/gdp_rank_by_year.png)
