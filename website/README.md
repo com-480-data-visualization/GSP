@@ -18,8 +18,10 @@ npm run dev
 
 # Deployment
 
-To build the project for production, run:
+To deploy the project to GitHub Pages, run the following command:
 
 ```bash
-npm run build
+npm run deploy
 ```
+
+After the build has finished, the website should be available at [https://com-480-data-visualization.github.io/GSP/](https://com-480-data-visualization.github.io/GSP/).
