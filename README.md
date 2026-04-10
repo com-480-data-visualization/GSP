@@ -13,18 +13,13 @@
 
 ## Milestone 2 (17th April, 5pm)
 
-**10% of the final grade**
+[Link to our Report](./MS2/README.md)
 
 
 ## Milestone 3 (29th May, 5pm)
 
 **80% of the final grade**
 
-
-## Late policy
-
-- < 24h: 80% of the grade for the milestone
-- < 48h: 70% of the grade for the milestone
 
 # Setup
 

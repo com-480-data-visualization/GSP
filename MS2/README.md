@@ -19,3 +19,5 @@ visualization/widgets. -->
 
 
 ## Initial Website Prototype
+
+Our initial prototype is available at [https://com-480-data-visualization.github.io/GSP/](https://com-480-data-visualization.github.io/GSP/).
