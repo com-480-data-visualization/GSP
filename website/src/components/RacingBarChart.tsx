@@ -61,10 +61,19 @@ export default function RacingBarChart({ season }: Props) {
       .then(r => r.text())
       .then(csv => {
         const { data } = Papa.parse<Row>(csv, { header: true, dynamicTyping: true, skipEmptyLines: true })
+        // Group by window, deduplicating by Country Code (keep best efficiency)
+        // Needed because historical split nations (FRG/GDR both → DEU, USSR/Russia → RUS, etc.)
+        // can produce multiple rows for the same code in one window.
         const grouped: Record<string, Row[]> = {}
         for (const row of data) {
           if (!row.window_label) continue
-          ;(grouped[row.window_label] ??= []).push(row)
+          const window = (grouped[row.window_label] ??= [])
+          const existing = window.find(r => r['Country Code'] === row['Country Code'])
+          if (!existing) {
+            window.push(row)
+          } else if (row.window_efficiency > existing.window_efficiency) {
+            window[window.indexOf(existing)] = row
+          }
         }
         for (const wl of Object.keys(grouped)) {
           grouped[wl].sort((a, b) => b.window_efficiency - a.window_efficiency)
