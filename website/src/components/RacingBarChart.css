@@ -1,0 +1,110 @@
+.rbc {
+  font-family: system-ui, sans-serif;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Controls */
+.rbc-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rbc-window-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 120px;
+  color: inherit;
+}
+
+.rbc-btn {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rbc-btn:hover { background: #2563eb; }
+
+.rbc-scrubber {
+  flex: 1;
+  min-width: 160px;
+  accent-color: #3b82f6;
+}
+
+/* Bars container — fixed height so rows don't jump the layout */
+.rbc-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 520px;
+}
+
+/* Each country row */
+.rbc-row {
+  display: grid;
+  grid-template-columns: 2rem 2rem 10rem 1fr 3.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  height: 32px;
+}
+
+.rbc-rank {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+}
+
+.rbc-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.rbc-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.rbc-bar-track {
+  background: #1e2235;
+  border-radius: 4px;
+  height: 22px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Bar colour cycles through a palette based on rank */
+.rbc-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: hsl(calc(210 + var(--rank, 0) * 15), 65%, 52%);
+  min-width: 4px;
+}
+
+.rbc-val {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+  text-align: right;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .rbc-window-label { color: #e2e8f0; }
+  .rbc-name { color: #e2e8f0; }
+  .rbc-bar-track { background: #2d3748; }
+  .rbc-val { color: #a0aec0; }
+  .rbc-rank { color: #718096; }
+}
