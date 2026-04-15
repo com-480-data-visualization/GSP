@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import GlobeSection from './GlobeSection'
 import BarChartRaceSection from './components/BarChartRaceSection'
+import GapminderScatter from './components/GapminderScatter'
 
 function App() {
   const [dimensions, setDimensions] = useState({
@@ -48,6 +49,13 @@ function App() {
       {/* ── Bar chart race ───────────────────────────────────────────────── */}
       <div ref={barRef} style={{ height: '150vh', position: 'relative' }}>
         <BarChartRaceSection width={W} height={H} split={barSplit} />
+      </div>
+
+      {/* ── Gapminder scatter ────────────────────────────────────────────── */}
+      <div style={{ padding: '3rem 2rem', color: '#e2e8f0', borderTop: '1px solid #1e293b' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+          <GapminderScatter />
+        </div>
       </div>
 
     </div>
