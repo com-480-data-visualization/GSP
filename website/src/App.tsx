@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import GlobeSection from './GlobeSection'
 import RacingBarChart from './components/RacingBarChart'
+import GapminderScatter from './components/GapminderScatter'
 
 function App() {
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight })
@@ -22,14 +23,13 @@ function App() {
   const W = dimensions.width
   const H = dimensions.height
   const split = scrollY > 200
-  const showGreen = scrollY > 793
 
 
 
   type Season = 'Summer' | 'Winter'
 
   return (
-    <div style={{ height: '300vh', position: 'relative' }}>
+    <div style={{ minHeight: '300vh', position: 'relative' }}>
       <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <GlobeSection width={W} height={H} split={split} />
       </div>
@@ -70,7 +70,14 @@ function App() {
           <RacingBarChart key={season} season={season} />
         </div>
       </div>
-    </div>  
+
+      {/* Gapminder scatter — exceeding expectations */}
+      <div style={{ padding: '3rem 2rem', color: '#e2e8f0', borderTop: '1px solid #1e293b' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+          <GapminderScatter />
+        </div>
+      </div>
+    </div>
   )}
 
 export default App
