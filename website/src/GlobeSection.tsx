@@ -146,6 +146,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
   const baseProps = {
     width: globeWidth,
     height,
+    backgroundColor: '#000d1f',
     globeImageUrl: '/GSP/earth-dark.jpg',
     polygonsData: countries.features.filter(d => d.properties.ISO_A2 !== 'AQ'),
     polygonAltitude: altitude.value,
@@ -155,7 +156,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
   }
 
   return (
-    <div style={{ position: 'sticky', top: 0, width, height, overflow: 'clip' }}>
+    <div style={{ position: 'sticky', top: 0, width, height, overflow: 'clip', background: '#000d1f' }}>
       {/* Globe 1: starts centred, slides left on split */}
       <div style={{
         position: 'absolute',
