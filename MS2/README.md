@@ -17,6 +17,18 @@ visualization/widgets. -->
 
 ## Project Goal
 
+We want to explore the relationship between economic indicators and Olympic success. The goal is to diverge from the traditional medal count and instead focus on how various economic factors, such as GDP and population size, correlate with a country's performance in the Olympics. We want to praise the overachievers and understand the underachievers, rather than just celebrating the countries with the most medals.
+
+Our visualization begins with a globe that shows the traditional medal count. However, on scrolling, we transition to a more insightful visualization that highlights the countries that perform exceptionally well relative to their size and wealth. This will allow us to uncover hidden gems in the Olympic landscape and provide a more nuanced understanding of success in the games.
+
+![Globes](globes.png)
+
+For this visualization, we will draw on insights from the Lectures on Maps. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
+
+The second visualization focuses on our methodology.
+
+The third visualization shows how the modern state of medal and efficiency came to be, and how it evolved over time.
+
 
 ## Initial Website Prototype
 

@@ -52,7 +52,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
   const globeEl2 = useRef<any>(undefined!)
   const [countries, setCountries] = useState<CountriesData>({ features: [] })
   const [medals, setMedals] = useState<Record<string, number>>({})
-  const [efficiency, setEfficiency] = useState<Record<string, number>>({})
+  const [avgZscore, setAvgZscore] = useState<Record<string, number>>({})
   const [altitude, setAltitude] = useState<{ value: number | ((feat: object) => number) }>({ value: 0.01 })
   const [capColor, setCapColor] = useState<{ fn: (feat: object) => string }>({ fn: () => 'rgba(100,100,100,0.6)' })
   const [capColor2, setCapColor2] = useState<{ fn: (feat: object) => string }>({ fn: () => 'rgba(100,100,100,0.6)' })
@@ -62,25 +62,37 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
     Promise.all([
       fetch('/GSP/ne_110m_admin_0_countries.geojson').then(r => r.json()),
       fetch('/GSP/efficiency_by_country.csv').then(r => r.text()),
-    ]).then(([geoData, efficiencyCsv]: [CountriesData, string]) => {
+      fetch('/GSP/data/gapminder_scatter.json').then(r => r.json()),
+    ]).then(([geoData, efficiencyCsv, gapminderData]: [CountriesData, string, { Summer: { byYear: Record<string, { countries: { country: string; zscore: number }[] }> } }]) => {
       setCountries(geoData)
 
       const medalData: Record<string, number> = {}
-      const efficiencyData: Record<string, number> = {}
       for (const line of efficiencyCsv.trim().split('\n').slice(1)) {
-        const [country, effValue, medalValue] = line.split(',')
-        const medals = parseInt(medalValue)
-        const eff = parseFloat(effValue)
-        if (country && !isNaN(medals)) medalData[country] = medals
-        if (country && !isNaN(eff)) efficiencyData[country] = eff
+        const [country, , medalValue] = line.split(',')
+        const m = parseInt(medalValue)
+        if (country && !isNaN(m)) medalData[country] = m
       }
       setMedals(medalData)
-      setEfficiency(efficiencyData)
+
+      // Compute average zscore per country across all Summer years
+      const zscoreSum: Record<string, number> = {}
+      const zscoreCount: Record<string, number> = {}
+      for (const yearData of Object.values(gapminderData.Summer.byYear)) {
+        for (const { country, zscore } of yearData.countries) {
+          zscoreSum[country] = (zscoreSum[country] ?? 0) + zscore
+          zscoreCount[country] = (zscoreCount[country] ?? 0) + 1
+        }
+      }
+      const zscoreData: Record<string, number> = {}
+      for (const country of Object.keys(zscoreSum)) {
+        zscoreData[country] = zscoreSum[country] / zscoreCount[country]
+      }
+      setAvgZscore(zscoreData)
 
       const maxMedals = Math.max(...Object.values(medalData))
-      const effValues = Object.values(efficiencyData)
-      const minEff = Math.min(...effValues)
-      const maxEff = Math.max(...effValues)
+      const zValues = Object.values(zscoreData)
+      const minZ = Math.min(...zValues)
+      const maxZ = Math.max(...zValues)
 
       setTimeout(() => {
         setTransitionDuration(2000)
@@ -97,9 +109,9 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         }})
         setCapColor2({ fn: (feat: object) => {
           const f = feat as CountryFeature
-          const eff = efficiencyData[geoKey(f.properties)]
-          if (eff == null) return 'rgba(60,60,60,0.5)'
-          return medalColor((eff - minEff) / (maxEff - minEff))
+          const z = zscoreData[geoKey(f.properties)]
+          if (z == null) return 'rgba(60,60,60,0.5)'
+          return medalColor((z - minZ) / (maxZ - minZ))
         }})
       }, 1000)
     })
@@ -168,8 +180,8 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         <div style={{
           position: 'absolute',
           top: 48,
-          left: 0,
-          width: globeWidth,
+          left: globeWidth * 0.1,
+          width: globeWidth * 0.8,
           textAlign: 'center',
           color: 'white',
           fontSize: 24,
@@ -227,8 +239,8 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         <div style={{
           position: 'absolute',
           top: 48,
-          left: 0,
-          width: globeWidth,
+          left: globeWidth * 0.1,
+          width: globeWidth * 0.8,
           textAlign: 'center',
           color: 'white',
           fontSize: 24,
@@ -238,7 +250,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           zIndex: 1,
           textShadow: '0 1px 4px rgba(0,0,0,0.8)',
         }}>
-          But if we look at the efficiency of countries, we see a different picture:
+          But if we look at how countries perform relative to their size and wealth, unexpected nations like Kenya and Hungary come out on top.
         </div>
         <Globe
           ref={globeEl2}
@@ -247,10 +259,10 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           polygonCapColor={capColor2.fn}
           polygonLabel={(feat: object) => {
             const { properties: d } = feat as CountryFeature
-            const eff = efficiency[geoKey(d)]
-            const effStr = eff != null ? eff.toFixed(3) : 'N/A'
+            const z = avgZscore[geoKey(d)]
+            const zStr = z != null ? z.toFixed(2) : 'N/A'
             const total = medals[geoKey(d)] ?? 0
-            return `<div><b>${d.ADMIN}</b><br/>Efficiency (inv. GDP): <i>${effStr}</i><br/>Total medals: <i>${total}</i></div>`
+            return `<div><b>${d.ADMIN}</b><br/>Avg z-score: <i>${zStr}</i><br/>Total medals: <i>${total}</i></div>`
           }}
         />
       </div>
