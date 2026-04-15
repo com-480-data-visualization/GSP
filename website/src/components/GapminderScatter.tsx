@@ -405,6 +405,7 @@ export default function GapminderScatter() {
         setData(d)
         setYearIndex(0)
       })
+      .catch(err => console.error('Failed to load gapminder data:', err))
   }, [])
 
   const seasonData = data?.[season]
