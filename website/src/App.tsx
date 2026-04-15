@@ -40,7 +40,7 @@ function App() {
       {/* ── Globe: EXACTLY the original working structure ───────────────────
            The inner 100vh div with overflow:hidden is required — it clips
            the WebGL canvas correctly. Removing it breaks the globe layout. */}
-      <div style={{ height: '200vh', position: 'relative' }}>
+      <div style={{ height: '100vh', position: 'relative' }}>
         <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
           <GlobeSection width={W} height={H} split={globeSplit} />
         </div>
