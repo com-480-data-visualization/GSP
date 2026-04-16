@@ -17,21 +17,29 @@ visualization/widgets. -->
 
 ## Project Goal
 
-We want to explore the relationship between economic indicators and Olympic success. The goal is to diverge from the traditional medal count and instead focus on how various economic factors, such as GDP and population size, correlate with a country's performance in the Olympics. We want to praise the overachievers and understand the underachievers, rather than just celebrating the countries with the most medals.
+The goal of the project is to explore the relationship between economic indicators and Olympic success. The goal is to diverge from the traditional medal count and instead focus on how various economic factors, such as GDP and population size, correlate with a country's performance in the Olympics. We want to praise the overachievers and understand the underachievers, rather than just celebrating the countries with the most medals.
 
-Our visualization begins with a globe that shows the traditional medal count. However, on scrolling, we transition to a more insightful visualization that highlights the countries that perform exceptionally well relative to their size and wealth. This will allow us to uncover hidden gems in the Olympic landscape and provide a more nuanced understanding of success in the games.
+
+## Overview of Visualizations
+
+As an introduction and appetizer, the first visualization shows total medal counts compared to exceeding expected performance based on economic indicators. It serves as a teaser to highlight the contrast between traditional medal counts and our more nuanced approach, setting the stage for the deeper exploration that follows.
+
+The second visualization focuses on our methodology. It serves to explain how we calculate expected performance based on economic indicators and how we identify overachievers and underachievers.
+
+The third visualization shows how the modern state of medal and efficiency came to be, and how it evolved over time. It adds the temporal dimension to the story, showing how countries have improved or declined in both absolute medal counts and efficiency over the decades. This allows us to see trends and patterns that may not be apparent in a static view.
+
+A potentially fourth visualization focuses on the sports that contribute most to efficient countries, to help explain how they achieve their success. This would be an optional extension that adds depth to the story without being essential to the core narrative.
+
+## Components
+
+### Globes
+
+Our data story begins with a globe that shows the traditional medal count. However, on scrolling, we transition to a more insightful visualization that highlights the countries that perform exceptionally well relative to their size and wealth. This will allow us to uncover hidden gems in the Olympic landscape and provide a more nuanced understanding of success in the games.
 
 ![Globes](globes.png)
 *Figure 1: Screenshot of the current Globes implementation.*
 
-For this visualization, we will draw on insights from the Lectures on Maps. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
-
-The second visualization focuses on our methodology.
-
-The third visualization shows how the modern state of medal and efficiency came to be, and how it evolved over time.
-
-## Components
-### Globes
+**Tools and lectures.** For this visualization, we will draw on insights from the Lectures on Maps. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
 
 ### Bubble Chart
 
