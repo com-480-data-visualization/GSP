@@ -30,12 +30,12 @@ The second visualization focuses on our methodology.
 
 The third visualization shows how the modern state of medal and efficiency came to be, and how it evolved over time.
 
-### Components
-## Globes
+## Components
+### Globes
 
-## Bubble Chart
+### Bubble Chart
 
-## Racing Bar Charts 
+### Racing Bar Charts 
 This visualization compares two ways of telling the Olympic success story: which countries win the most medals over time, and which countries improve most efficiently relative to their GDP per capita. The contrast is important because a country with a modest economy but a growing medal count may be more remarkable than a wealthy country that wins many medals but performs close to expectation.
 
 The current prototype implements this idea through two synchronized racing bar charts, shown in Figure 2. The medal-count race starts as the main view and ranks countries across Olympic periods from 1960 onward. As the user scrolls, it shifts left and an efficiency race appears on the right. This reveals the same timeline first through absolute medal success, then through resource-adjusted performance. The charts animate automatically, and a button above the charts lets users switch between Summer and Winter Olympics.
