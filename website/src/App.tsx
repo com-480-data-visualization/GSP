@@ -46,17 +46,19 @@ function App() {
         </div>
       </div>
 
-      {/* ── Bar chart race ───────────────────────────────────────────────── */}
-      <div ref={barRef} style={{ height: '150vh', position: 'relative' }}>
-        <BarChartRaceSection width={W} height={H} split={barSplit} />
-      </div>
-
-      {/* ── Gapminder scatter ────────────────────────────────────────────── */}
+        {/* ── Gapminder scatter ────────────────────────────────────────────── */}
       <div style={{ padding: '3rem 2rem', color: '#e2e8f0', borderTop: '1px solid #1e293b' }}>
         <div style={{ maxWidth: 1060, margin: '0 auto' }}>
           <GapminderScatter />
         </div>
       </div>
+
+
+      {/* ── Bar chart race ───────────────────────────────────────────────── */}
+      <div ref={barRef} style={{ height: '150vh', position: 'relative' }}>
+        <BarChartRaceSection width={W} height={H} split={barSplit} />
+      </div>
+
 
     </div>
   )
