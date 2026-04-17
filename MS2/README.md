@@ -43,14 +43,14 @@ Our data story begins with a globe that shows the traditional medal count. Howev
 
 ### Bubble Chart
 
-This visualization exposes the methodology behind our efficiency metric. It plots each country as a bubble on a log-log scatter chart with GDP per capita on the x-axis and medal count on the y-axis, where bubble size encodes population. A dashed regression line captures the expected performance predicted by the model log(medals) = α·log(GDP per capita) + β·log(population) + γ. Countries sitting well above the line are overachievers - they win more medals than their economic and demographic profile would predict — while those below are underachievers. A year slider (1960–2024) lets users animate how countries drift relative to the expectation over time, and a Winter/Summer toggle switches the underlying dataset.
+This visualization exposes the methodology behind our efficiency metric. It plots each country as a bubble on a log-log scatter chart with GDP per capita on the x-axis and medal count on the y-axis, where bubble size encodes population. A dashed regression line captures the expected performance predicted by the model log(medals) = α·log(GDP per capita) + β·log(population) + γ. Countries sitting well above the line are overachievers - they win more medals than their economic and demographic profile would predict - while those below are underachievers. A year slider (1960–2024) lets users animate how countries drift relative to the expectation over time, and a Winter/Summer toggle switches the underlying dataset.
 
 ![Bubble Chart](bubble_chart.jpeg)
 *Figure 2: Sketch of the Bubble Chart implementation.*
 
 **Core implementation.** The next version will render the scatter plot with D3, fit the log-linear regression on the fly for the selected year and season, and colour bubbles by over- or under-performance relative to the regression line. The year slider will animate the chart so that users can watch countries rise above or fall below expectation over Olympic history.
 
-**Possible extensions.** An interactive tooltip showing a country's name, exact medal count, GDP per capita, and efficiency score would add depth without cluttering the chart. A persistent trail option, which leaves ghost bubbles from prior years for a selected country, could make individual trajectories easier to follow.
+**Possible extensions.** The finished visualization plots countries on a GDP per capita vs. actual/expected medals ratio axis, with bubble size encoding medal count and bubble color encoding a five-tier z-score scale from far above (gold) to far below (blue). Hovering a bubble reveals a tooltip with country flag, GDP, population, actual vs. expected medals, and a z-score label. Clicking a bubble pins it, dims all others, and draws a dashed orange trajectory polyline tracing that country's path through every Olympic year. A side leaderboard shows the top five over- and under-performers for the current year. A play/pause/replay button animates through years at 1.2-second intervals, and a Summer/Winter toggle switches the entire dataset.
 
 **Tools and lectures.** We will use [D3.js](https://d3js.org/) (introduced in the week 4 D3 lecture) for the scatter plot, regression fit, and animations. The Marks and Channels lecture will guide the visual encoding of GDP, medals, and population, the Perception and Colors lecture will guide the diverging colour scale for over- and under-achievement, and the Interactions lecture will inform the slider and toggle behaviour.
 
@@ -68,7 +68,7 @@ The current prototype implements this idea through two synchronized racing bar c
 
 
 ![Racing Bar Chart](racing_bar_chart_sketch.jpg)
-*Figure 2: Sketch of the current racing bar chart implementation.*
+*Figure 3: Sketch of the current racing bar chart implementation.*
 
 ## Initial Website Prototype
 
