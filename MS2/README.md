@@ -39,7 +39,11 @@ Our data story begins with a globe that shows the traditional medal count. Howev
 ![Globes](globes.png)
 *Figure 1: Screenshot of the current Globes implementation.*
 
-**Tools and lectures.** For this visualization, we will draw on insights from the Lectures on Maps. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
+**Core implementation.** The globes show the world map with countries colored by the Olympic medal colors from gold to bronze, with a tooltip on hover showing the country name and medal count. The globes can be also spinned by the drag action. It shows aggregate statistics over all years and both Summer and Winter Olympics to provide a high-level overview of the traditional medal count.
+
+**Possible extensions.** The tooltips are currently underexploited and can give a deeper insight into a countries performance and efficiency. We can add more information to the tooltip, such as GDP, population, and expected vs. actual medals, to provide more context for each country's performance. To make the Globes more engaging, we can also make interesting countries
+
+**Tools and lectures.** For this visualization, we will draw on insights from the Lectures on Maps. We will also draw from the Do's and Dont's Lecture on a fair scale for the coloring. The possible extension of tooltips that pop-up to show highlights will further be inspired by the storytelling approach from the last week. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
 
 ### Bubble Chart
 
