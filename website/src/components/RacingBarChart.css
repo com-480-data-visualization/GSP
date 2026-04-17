@@ -1,110 +1,123 @@
+/* ── RacingBarChart ─────────────────────────────────────────────────────── */
+
 .rbc {
-  font-family: system-ui, sans-serif;
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  background: #000d1f;
+  color: #e8edf4;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Controls */
+/* ── Controls bar ──────────────────────────────────────────────────────── */
+
 .rbc-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .rbc-window-label {
-  font-size: 1.5rem;
-  font-weight: 700;
-  min-width: 120px;
-  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  min-width: 5ch;
+}
+
+.rbc-buttons {
+  flex-shrink: 0;
 }
 
 .rbc-btn {
-  padding: 0.35rem 0.9rem;
-  border: none;
-  border-radius: 6px;
+  padding: 4px 14px;
+  border-radius: 5px;
+  border: 1.5px solid #3b82f6;
+  background: transparent;
+  color: #3b82f6;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.rbc-btn:hover {
   background: #3b82f6;
   color: #fff;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s;
 }
-.rbc-btn:hover { background: #2563eb; }
 
 .rbc-scrubber {
   flex: 1;
-  min-width: 160px;
   accent-color: #3b82f6;
+  cursor: pointer;
+  height: 4px;
 }
 
-/* Bars container — fixed height so rows don't jump the layout */
+/* ── Bar rows ──────────────────────────────────────────────────────────── */
+
 .rbc-bars {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-height: 520px;
+  gap: 4px;
+  flex: 1;
+  overflow: hidden;
 }
 
-/* Each country row */
 .rbc-row {
   display: grid;
-  grid-template-columns: 2rem 2rem 10rem 1fr 3.5rem;
+  grid-template-columns: 2.5ch 1.8ch 1fr auto auto;
   align-items: center;
-  gap: 0.5rem;
-  height: 32px;
+  gap: 6px;
+  min-height: 0;
 }
 
 .rbc-rank {
-  font-size: 0.75rem;
-  color: #888;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
   text-align: right;
+  white-space: nowrap;
 }
 
 .rbc-flag {
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1;
-  text-align: center;
 }
 
 .rbc-name {
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  color: #c8d8f0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: inherit;
 }
 
 .rbc-bar-track {
-  background: #1e2235;
-  border-radius: 4px;
-  height: 22px;
+  width: 100%;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
   overflow: hidden;
-  position: relative;
 }
 
-/* Bar colour cycles through a palette based on rank */
+/* Bar color cycles through a palette via --rank CSS variable */
 .rbc-bar {
   height: 100%;
-  border-radius: 4px;
-  background: hsl(calc(210 + var(--rank, 0) * 15), 65%, 52%);
-  min-width: 4px;
+  border-radius: 3px;
+  background: hsl(calc(40 + var(--rank, 0) * 23), 75%, 58%);
+  min-width: 2px;
 }
 
 .rbc-val {
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
-  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
   text-align: right;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .rbc-window-label { color: #e2e8f0; }
-  .rbc-name { color: #e2e8f0; }
-  .rbc-bar-track { background: #2d3748; }
-  .rbc-val { color: #a0aec0; }
-  .rbc-rank { color: #718096; }
+  white-space: nowrap;
+  min-width: 4ch;
 }
