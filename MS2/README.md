@@ -42,7 +42,7 @@ Our data story begins with a globe that shows the traditional medal count. Howev
 **Tools and lectures.** For this visualization, we will draw on insights from the Lectures on Maps. As a technology we use the [Globe library](https://github.com/vasturiano/globe.gl) that is based on WebGL for performant rendering.
 
 ### Bubble Chart
-
+![Bubble Chart](bubble_chart.jpeg)
 ### Racing Bar Charts 
 This visualization compares two ways of telling the Olympic success story: which countries win the most medals over time, and which countries improve most efficiently relative to their GDP per capita. The contrast is important because a country with a modest economy but a growing medal count may be more remarkable than a wealthy country that wins many medals but performs close to expectation.
 
