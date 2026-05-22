@@ -304,25 +304,26 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
             position: 'absolute',
             left: tooltip.x + MARGIN.left + 12,
             top: tooltip.y + MARGIN.top - 10,
-            background: '#1e293b',
-            border: '1px solid #334155',
+            background: 'var(--bg-panel)',
+            border: '1px solid var(--border)',
             borderRadius: 8,
             padding: '8px 12px',
+            fontFamily: 'var(--font-sans)',
             pointerEvents: 'none',
             zIndex: 10,
             minWidth: 170,
             boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
           }}
         >
-          <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: 13, marginBottom: 4 }}>
+          <div style={{ fontWeight: 'var(--fw-bold)', color: 'var(--text)', fontSize: 'var(--fs-sm)', marginBottom: 4 }}>
             {flagEmoji(tooltip.point.code)} {tooltip.point.country}
           </div>
-          <div style={{ color: '#94a3b8', fontSize: 11, lineHeight: 1.7 }}>
-            <div>GDP/capita: <span style={{ color: '#e2e8f0' }}>${tooltip.point.gdp_per_capita.toLocaleString()}</span></div>
-            <div>Population: <span style={{ color: '#e2e8f0' }}>{tooltip.point.population.toFixed(1)}M</span></div>
-            <div>Actual medals: <span style={{ color: '#e2e8f0' }}>{tooltip.point.medal_count}</span></div>
-            <div>Expected medals: <span style={{ color: '#e2e8f0' }}>{tooltip.point.predicted}</span></div>
-            <div style={{ marginTop: 4, fontWeight: 600, color: zscoreColor(tooltip.point.zscore) }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', lineHeight: 1.7 }}>
+            <div>GDP/capita: <span style={{ color: 'var(--text)' }}>${tooltip.point.gdp_per_capita.toLocaleString()}</span></div>
+            <div>Population: <span style={{ color: 'var(--text)' }}>{tooltip.point.population.toFixed(1)}M</span></div>
+            <div>Actual medals: <span style={{ color: 'var(--text)' }}>{tooltip.point.medal_count}</span></div>
+            <div>Expected medals: <span style={{ color: 'var(--text)' }}>{tooltip.point.predicted}</span></div>
+            <div style={{ marginTop: 4, fontWeight: 'var(--fw-semi)', color: zscoreColor(tooltip.point.zscore) }}>
               {zscoreLabel(tooltip.point.zscore)} {tooltip.point.zscore >= 0 ? 'above' : 'below'} expected
             </div>
           </div>
@@ -342,19 +343,20 @@ function Leaderboard({ countries }: { countries: CountryPoint[] }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '5px 0',
-      borderBottom: '1px solid #1e293b',
+      borderBottom: '1px solid var(--border-soft)',
+      fontFamily: 'var(--font-sans)',
     }}>
-      <span style={{ fontSize: 16 }}>{flagEmoji(c.code)}</span>
+      <span style={{ fontSize: 'var(--fs-base)' }}>{flagEmoji(c.code)}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, color: '#e2e8f0', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text)', fontWeight: 'var(--fw-semi)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {c.country}
         </div>
-        <div style={{ fontSize: 10, color: '#64748b' }}>
+        <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)' }}>
           {c.medal_count} medals · {c.predicted} expected
         </div>
       </div>
       <div style={{
-        fontSize: 12, fontWeight: 700,
+        fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)',
         color: zscoreColor(c.zscore),
         flexShrink: 0,
       }}>
@@ -364,10 +366,10 @@ function Leaderboard({ countries }: { countries: CountryPoint[] }) {
   )
 
   return (
-    <div style={{ width: 220 }}>
+    <div style={{ width: 220, fontFamily: 'var(--font-sans)' }}>
       <div style={{ marginBottom: 12 }}>
         <div style={{
-          fontSize: 11, fontWeight: 700, color: '#f59e0b',
+          fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)', color: 'var(--gold)',
           textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6,
         }}>
           Over-performers
@@ -376,7 +378,7 @@ function Leaderboard({ countries }: { countries: CountryPoint[] }) {
       </div>
       <div>
         <div style={{
-          fontSize: 11, fontWeight: 700, color: '#3b82f6',
+          fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)', color: 'var(--accent)',
           textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6,
           marginTop: 16,
         }}>
@@ -446,7 +448,7 @@ export default function GapminderScatter() {
 
   if (!data || !currentYearData) {
     return (
-      <div style={{ color: '#64748b', padding: '2rem', textAlign: 'center' }}>
+      <div style={{ color: 'var(--text-dim)', padding: '2rem', textAlign: 'center', fontFamily: 'var(--font-sans)' }}>
         Loading visualization…
       </div>
     )
@@ -455,15 +457,17 @@ export default function GapminderScatter() {
   const { meta } = data
 
   return (
-    <div style={{ color: '#e2e8f0' }}>
+    <div style={{ color: 'var(--text)', fontFamily: 'var(--font-sans)', display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+      <div style={{ flex: '1 1 auto', minWidth: 0 }}>
 
       {/* Header */}
-      <h2 style={{ color: '#e2e8f0', fontSize: '1.6rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-        Who Exceeds Expectations?
+      <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
+        Who exceeded Olympic expectations?
       </h2>
-      <p style={{ color: '#94a3b8', marginBottom: '1.5rem', fontSize: '0.9rem', maxWidth: 700 }}>
-        Each bubble is a medal-winning country. Expected medals are modelled from both <strong>GDP per capita</strong> (wealth) and <strong>population</strong> (size) — so large rich nations like the USA get a high baseline. What remains is genuine over- or under-performance.
-        Gold bubbles punch above their weight; blue bubbles underperform relative to their wealth.
+      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: 'var(--fs-sm)', maxWidth: 700 }}>
+        Let's have a look at individual Olympic summer and winter games. We show the countries' relative performance as described above. Each bubble is a medal-winning country, in the size of the number of medals won at that event.
+          Gold bubbles punch above their weight; blue bubbles underperform relative to their wealth.
       </p>
 
       {/* Controls row */}
@@ -477,12 +481,13 @@ export default function GapminderScatter() {
               style={{
                 padding: '0.4rem 1.2rem',
                 borderRadius: 6,
-                border: '2px solid #3b82f6',
-                background: season === s ? '#3b82f6' : 'transparent',
-                color: season === s ? '#fff' : '#3b82f6',
-                fontWeight: 600,
+                border: '2px solid var(--accent)',
+                background: season === s ? 'var(--accent)' : 'transparent',
+                color: season === s ? '#fff' : 'var(--accent)',
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 'var(--fw-semi)',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
+                fontSize: 'var(--fs-sm)',
               }}
             >
               {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
@@ -490,47 +495,21 @@ export default function GapminderScatter() {
           ))}
         </div>
 
-        {/* Play/Pause */}
-        <button
-          onClick={handlePlay}
-          style={{
-            padding: '0.4rem 1rem',
-            borderRadius: 6,
-            border: '2px solid #475569',
-            background: isPlaying ? '#475569' : 'transparent',
-            color: '#e2e8f0',
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            minWidth: 90,
-          }}
-        >
-          {isPlaying ? '⏸ Pause' : yearIndex >= years.length - 1 ? '↺ Replay' : '▶ Play'}
-        </button>
-
-        {/* Year label */}
-        <span style={{
-          fontSize: '2rem', fontWeight: 800, color: '#f8fafc',
-          letterSpacing: '-0.03em', lineHeight: 1,
-          transition: 'opacity 0.3s',
-        }}>
-          {currentYear}
-        </span>
-
         {/* Pinned country indicator */}
         {pinnedCode && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            background: '#1e293b', border: '1px solid #f59e0b',
+            background: 'var(--bg-panel)', border: '1px solid var(--gold)',
             borderRadius: 20, padding: '4px 12px',
+            fontFamily: 'var(--font-sans)',
           }}>
             <span>{flagEmoji(pinnedCode)}</span>
-            <span style={{ fontSize: 12, color: '#fbbf24' }}>
+            <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--gold-soft)' }}>
               {currentYearData.countries.find(c => c.code === pinnedCode)?.country ?? pinnedCode}
             </span>
             <button
               onClick={() => setPinnedCode(null)}
-              style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 13, padding: 0 }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: 'var(--fs-sm)', padding: 0 }}
             >
               ✕
             </button>
@@ -540,7 +519,38 @@ export default function GapminderScatter() {
 
       {/* Year slider */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', maxWidth: SVG_W }}>
-        <span style={{ fontSize: 10, color: '#64748b', flexShrink: 0 }}>{years[0]}</span>
+        {/* Year label */}
+        <span style={{
+          fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-bold)', color: 'var(--text)',
+          letterSpacing: '-0.03em', lineHeight: 1,
+          transition: 'opacity 0.3s',
+          flexShrink: 0,
+          minWidth: 64,
+        }}>
+          {currentYear}
+        </span>
+
+        {/* Play/Pause */}
+        <button
+          onClick={handlePlay}
+          style={{
+            padding: '0.4rem 1rem',
+            borderRadius: 6,
+            border: '2px solid var(--text-faint)',
+            background: isPlaying ? 'var(--text-faint)' : 'transparent',
+            color: 'var(--text)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 'var(--fw-semi)',
+            cursor: 'pointer',
+            fontSize: 'var(--fs-sm)',
+            minWidth: 90,
+            flexShrink: 0,
+          }}
+        >
+          {isPlaying ? '⏸ Pause' : yearIndex >= years.length - 1 ? '↺ Replay' : '▶ Play'}
+        </button>
+
+        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[0]}</span>
         <input
           type="range"
           min={0}
@@ -550,38 +560,29 @@ export default function GapminderScatter() {
             setYearIndex(Number(e.target.value))
             setIsPlaying(false)
           }}
-          style={{ flex: 1, accentColor: '#3b82f6' }}
+          style={{ flex: 1, accentColor: 'var(--accent)' }}
         />
-        <span style={{ fontSize: 10, color: '#64748b', flexShrink: 0 }}>{years[years.length - 1]}</span>
+        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[years.length - 1]}</span>
       </div>
 
-      {/* Main layout: scatter + leaderboard */}
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <ScatterPlot
-          yearData={currentYearData}
-          gdpMin={meta.gdpMin}
-          gdpMax={meta.gdpMax}
-          ratioMax={meta.ratioMax}
-          pinnedCode={pinnedCode}
-          allYearData={allYearData}
-          currentYearIndex={yearIndex}
-          onPin={setPinnedCode}
-        />
-
-        <div style={{ paddingTop: 24 }}>
-          <Leaderboard countries={currentYearData.countries} />
-          <p style={{ marginTop: 16, fontSize: 10, color: '#475569', maxWidth: 220 }}>
-            Click any bubble to trace its journey over time.
-          </p>
-        </div>
-      </div>
+      {/* Scatter plot */}
+      <ScatterPlot
+        yearData={currentYearData}
+        gdpMin={meta.gdpMin}
+        gdpMax={meta.gdpMax}
+        ratioMax={meta.ratioMax}
+        pinnedCode={pinnedCode}
+        allYearData={allYearData}
+        currentYearIndex={yearIndex}
+        onPin={setPinnedCode}
+      />
 
       {/* Color legend */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
         marginTop: '1.25rem', flexWrap: 'wrap',
       }}>
-        <span style={{ fontSize: 10, color: '#64748b', marginRight: 4 }}>Performance vs. expectation:</span>
+        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', marginRight: 4 }}>Performance vs. expectation:</span>
         {[
           { color: '#f59e0b', label: 'Far above' },
           { color: '#fbbf24', label: 'Above' },
@@ -591,9 +592,19 @@ export default function GapminderScatter() {
         ].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{label}</span>
+            <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>{label}</span>
           </div>
         ))}
+      </div>
+
+      </div>
+
+      {/* Right column: leaderboard */}
+      <div style={{ flexShrink: 0, marginTop: 50 }}>
+        <Leaderboard countries={currentYearData.countries} />
+        <p style={{ marginTop: 16, fontSize: 'var(--fs-xs)', color: 'var(--text-faint)', maxWidth: 220 }}>
+          Click any bubble to trace its journey over time.
+        </p>
       </div>
     </div>
   )

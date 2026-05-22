@@ -1,7 +1,46 @@
 :root {
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  font: 18px/145% var(--sans);
+  --fs-xs:      clamp(0.7rem,  0.6rem  + 0.18vw, 0.82rem);  /* meta, legends, axis labels */
+  --fs-sm:      clamp(0.8rem,  0.7rem  + 0.28vw, 0.98rem);  /* small body, button text */
+  --fs-base:    clamp(0.9rem,  0.8rem  + 0.35vw, 1.13rem);  /* body */
+  --fs-md:      clamp(1rem,    0.88rem + 0.45vw, 1.25rem);  /* lead paragraph */
+  --fs-lg:      clamp(1.2rem,  1.05rem + 0.7vw,  1.7rem);   /* section sub-title / overlay caption */
+  --fs-xl:      clamp(1.5rem,  1.25rem + 1vw,    2.35rem);  /* section title */
+  --fs-display: clamp(2.2rem,  1.6rem  + 4vw,    4.5rem);
+
+  --lh-tight:  1.1;
+  --lh-normal: 1.45;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semi:    600;
+  --fw-bold:    700;
+
+  /* ── Color palette ──────────────────────────────────────────────────── */
+  --bg-deep:    #000011;
+  --bg:         #000d1f;
+  --bg-elev:    #0b1f3a;
+  --bg-panel:   #1e293b;
+  --border:     #334155;
+  --border-soft:#1e293b;
+
+  --text:       #e2e8f0;
+  --text-soft:  #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim:   #64748b;
+  --text-faint: #475569;
+
+  --accent:      #3b82f6;
+  --accent-soft: #93c5fd;
+  --gold:        #f59e0b;
+  --gold-soft:   #fbbf24;
+  --gold-faint:  #fde68a;
+
+  /* ── Root font setup ────────────────────────────────────────────────── */
+  font: 18px/var(--lh-normal) var(--font-sans);
+  color: var(--text);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -14,16 +53,27 @@
 
 body {
   margin: 0;
-  background: #000011;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg-deep);
   overflow-x: hidden;
 }
 
 #root {
   width: 100%;
   min-height: 100svh;
-  background: #000011;
+  background: var(--bg-deep);
+}
+
+h1, h2, h3, h4, h5, h6, p, button, input, select, textarea {
+  font-family: var(--font-sans);
+  color: inherit;
 }
 
 p {
   margin: 0;
+}
+
+button {
+  font-family: var(--font-sans);
 }

@@ -19,6 +19,7 @@ interface CsvRow {
   'Country Code': string
   country_name: string
   window_start: number
+  window_end: number
   total_medals: number
   window_efficiency: number
   window_label: string
@@ -27,10 +28,9 @@ interface CsvRow {
 interface Props {
   width: number
   height: number
-  split: boolean
 }
 
-export default function BarChartRaceSection({ width, height, split }: Props) {
+export default function BarChartRaceSection({ width, height }: Props) {
   const [season, setSeason] = useState<Season>('Summer')
 
   const c1 = useRef<HTMLDivElement>(null)
@@ -38,11 +38,11 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
   const r1 = useRef<RaceAPI | null>(null)
   const r2 = useRef<RaceAPI | null>(null)
 
-  const half   = Math.floor(width / 2)
-  const HEADER = 72                                          // px for season toggle strip
-  // Cap chart height so bars stay a reasonable size on tall monitors.
-  // Leave at least HEADER + 32 px of margin inside the sticky viewport.
-  const chartH = Math.min(Math.floor(height * 0.85), 620)
+  const SIDE_MARGIN = 48                                     // px gutter on left/right
+  const inner  = width - SIDE_MARGIN * 2
+  const half   = Math.floor(inner / 2)
+  const HEADER = 120                                         // px for title + season toggle strip
+  const chartH = Math.min(Math.floor(height * 0.8), 620)
 
   // ── Permanent background override injected once on mount ─────────────────
   useEffect(() => {
@@ -56,8 +56,8 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
       #${C1} > :first-child,
       #${C2},
       #${C2} > :first-child {
-        background-color: #000d1f !important;
-        background:       #000d1f !important;
+        background-color: var(--bg) !important;
+        background:       var(--bg) !important;
       }
     `
     document.head.appendChild(style)
@@ -79,14 +79,17 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
       complete: async ({ data }) => {
         if (cancelled) return
 
-        // ── Deduplicate: per (country_name × window_start) keep best row ──
+        // ── Deduplicate by (country × Olympic year). window_end is the
+        //    last Olympic edition in each rolling window — i.e. an actual
+        //    Olympic year (1960, 1964, 1968, …). window_start is just the
+        //    window boundary and produces non-Olympic years (1963, 1967, …).
         const bestMedals: Record<string, { name: string; date: string; value: number }> = {}
         const bestEff:    Record<string, { name: string; date: string; value: number }> = {}
 
         for (const row of data) {
-          if (!row.country_name || row.window_start == null) continue
-          const key  = `${row.country_name}__${row.window_start}`
-          const date = `${row.window_start}-01-01`
+          if (!row.country_name || row.window_end == null) continue
+          const key  = `${row.country_name}__${row.window_end}`
+          const date = `${row.window_end}-01-01`
 
           if (!bestMedals[key] || row.total_medals > bestMedals[key].value)
             bestMedals[key] = { name: row.country_name, date, value: row.total_medals ?? 0 }
@@ -107,8 +110,8 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
           loop:           true,
           topN:           10,
           theme:          'dark' as const,
-          tickDuration:   700,
-          controlButtons: 'all' as const,
+          tickDuration:   1500,
+          dateCounter:    (currentDate: string) => currentDate.slice(0, 4),
         }
 
         // Helper: patch racing-bars inline after it resolves.
@@ -117,17 +120,18 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
         // Setting 0.5vw (= 1vw of the half-width container) corrects the scale.
         // Inline style beats the #id{} rule racing-bars injects (no !important needed).
         const patchContainer = (el: HTMLElement) => {
-          el.style.setProperty('background-color', '#000d1f', 'important')
+          el.style.setProperty('background-color', 'var(--bg)', 'important')
           el.style.setProperty('--base-font-size', 'max(0.55vw, 11px)')
           const child = el.firstElementChild as HTMLElement | null
-          if (child) child.style.setProperty('background-color', '#000d1f', 'important')
+          if (child) child.style.setProperty('background-color', 'var(--bg)', 'important')
         }
 
         if (!cancelled && c1.current) {
           r1.current = await race(medalsData, c1.current, {
             ...common,
-            title: 'The most successful countries at the Olympics',
+            title:          'Total medal count',
             makeCumulative: true,
+            controlButtons: 'none',
           })
           if (c1.current) patchContainer(c1.current)
         }
@@ -135,14 +139,20 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
         if (!cancelled && c2.current) {
           r2.current = await race(effData, c2.current, {
             ...common,
-            title: 'But if we look at efficiency…',
+            title:          'Relative performance',
+            controlButtons: 'all',
           })
           if (c2.current) patchContainer(c2.current)
         }
 
-        if (!cancelled) {
-          r1.current?.play()
-          r2.current?.play()
+        // ── Sync: drive the (control-less) left race off the right race's
+        //    ticker. Any play/pause/seek on the right propagates to the left,
+        //    keeping both timelines in lockstep.
+        if (!cancelled && r1.current && r2.current) {
+          r2.current.on('dateChange', ({ date }) => {
+            r1.current?.setDate(date)
+          })
+          r2.current.play()
         }
       },
     })
@@ -161,10 +171,10 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
       width,
       height,
       overflow:   'clip',
-      background: '#000d1f',
+      background: 'var(--bg)',
     }}>
 
-      {/* ── Season toggle — centred at top ───────────────────────────────── */}
+      {/* ── Section header: title + season toggle ───────────────────────── */}
       <div style={{
         position:       'absolute',
         top:            0,
@@ -172,71 +182,55 @@ export default function BarChartRaceSection({ width, height, split }: Props) {
         width,
         height:         HEADER,
         display:        'flex',
+        flexDirection:  'column',
         alignItems:     'center',
         justifyContent: 'center',
-        gap:            10,
+        gap:            12,
         zIndex:         10,
       }}>
-        {(['Summer', 'Winter'] as Season[]).map(s => (
-          <button key={s} onClick={() => setSeason(s)} style={{
-            padding:      '0.3rem 1rem',
-            borderRadius: 6,
-            border:       '2px solid #3b82f6',
-            background:   season === s ? '#3b82f6' : 'transparent',
-            color:        season === s ? '#fff' : '#3b82f6',
-            fontWeight:   600,
-            cursor:       'pointer',
-            fontSize:     '0.85rem',
-          }}>
-            {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
-          </button>
-        ))}
+       <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
+          Olympic efficiency over time
+        </h2>
+        How did Russia, Hungary and the Ukraine become the relatively best performing countries in the Summer olympics?
+        <div style={{ display: 'flex', gap: 10 }}>
+          {(['Summer', 'Winter'] as Season[]).map(s => (
+            <button key={s} onClick={() => setSeason(s)} style={{
+              padding:      '0.3rem 1rem',
+              borderRadius: 6,
+              border:       '2px solid var(--accent)',
+              background:   season === s ? 'var(--accent)' : 'transparent',
+              color:        season === s ? '#fff' : 'var(--accent)',
+              fontFamily:   'var(--font-sans)',
+              fontWeight:   'var(--fw-semi)',
+              cursor:       'pointer',
+              fontSize:     'var(--fs-sm)',
+            }}>
+              {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── Left panel: medals ─────────────────────────────────────────────
-           Starts centred (translateX = width/4), slides left on split.    */}
+      {/* ── Left panel: medals ───────────────────────────────────────────── */}
       <div style={{
-        position:   'absolute',
-        top:        HEADER,
-        left:       0,
-        width:      half,
-        height:     chartH,
-        transition: 'transform 0.8s cubic-bezier(0.4,0,0.2,1)',
-        transform:  split ? 'translateX(0)' : `translateX(${width / 4}px)`,
+        position: 'absolute',
+        top:      HEADER + 40,
+        left:     SIDE_MARGIN,
+        width:    half,
+        height:   chartH,
       }}>
         <div id={C1} ref={c1} style={{ width: half, height: chartH }} />
       </div>
 
-      {/* ── Right panel: efficiency ────────────────────────────────────────
-           Starts off-screen right, slides in on split.                    */}
+      {/* ── Right panel: efficiency ──────────────────────────────────────── */}
       <div style={{
-        position:   'absolute',
-        top:        HEADER,
-        left:       half,
-        width:      half,
-        height:     chartH,
-        transition: 'transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease',
-        transform:  split ? 'translateX(0)' : `translateX(${half}px)`,
-        opacity:    split ? 1 : 0,
+        position: 'absolute',
+        top:      HEADER + 40,
+        left:     SIDE_MARGIN + half,
+        width:    half,
+        height:   chartH,
       }}>
         <div id={C2} ref={c2} style={{ width: half, height: chartH }} />
-      </div>
-
-      {/* ── Scroll hint ───────────────────────────────────────────────────── */}
-      <div style={{
-        position:      'absolute',
-        bottom:        24,
-        left:          0,
-        width,
-        textAlign:     'center',
-        color:         'rgba(255,255,255,0.55)',
-        fontSize:      15,
-        fontFamily:    'sans-serif',
-        pointerEvents: 'none',
-        transition:    'opacity 0.4s ease',
-        opacity:       split ? 0 : 1,
-      }}>
-        Scroll to reveal the efficiency story
       </div>
 
     </div>

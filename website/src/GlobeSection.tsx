@@ -45,11 +45,49 @@ interface GlobeSectionProps {
   split: boolean
 }
 
+interface CountryMarker {
+  name: string
+  key: string
+  lat: number
+  lng: number
+}
+
+const GLOBE1_COUNTRIES: CountryMarker[] = [
+  { name: 'US', key: 'United States', lat: 43, lng: -98.6 },
+  { name: 'China', key: 'China', lat: 38, lng: 105.0 },
+  { name: 'Germany', key: 'Germany', lat: 53, lng: 10.5 },
+]
+
+const GLOBE2_COUNTRIES: CountryMarker[] = [
+  { name: 'Kenya', key: 'Kenya', lat: 3, lng: 37.9 },
+  { name: 'Hungary', key: 'Hungary', lat: 49, lng: 19.5 },
+]
+
+function makeMarkerElement(label: string): HTMLDivElement {
+  const el = document.createElement('div')
+  el.style.cssText = [
+    'pointer-events: none',
+    'transform: translate(-50%, -100%)',
+    'text-align: center',
+    'color: var(--text)',
+    'font-family: var(--font-sans)',
+    'font-size: var(--fs-sm)',
+    'font-weight: var(--fw-semi)',
+    'text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.9)',
+    'white-space: nowrap',
+    'line-height: 1',
+  ].join(';')
+  el.innerHTML = `<div style="margin-bottom:2px">${label}</div><div style="font-size:var(--fs-md);line-height:1">▼</div>`
+  return el
+}
+
 export default function GlobeSection({ width, height, split }: GlobeSectionProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeEl = useRef<any>(undefined!)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeEl2 = useRef<any>(undefined!)
+  const [cursor, setCursor] = useState<'grab' | 'grabbing' | 'auto'>('auto')
+  const draggingRef = useRef(false)
   const [countries, setCountries] = useState<CountriesData>({ features: [] })
   const [medals, setMedals] = useState<Record<string, number>>({})
   const [avgZscore, setAvgZscore] = useState<Record<string, number>>({})
@@ -167,8 +205,61 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
     polygonsTransitionDuration: transitionDuration,
   }
 
+  const globe1Markers = GLOBE1_COUNTRIES.map(c => ({
+    ...c,
+    label: `${c.name} (${medals[c.key] ?? 0})`,
+  }))
+  const globe2Markers = GLOBE2_COUNTRIES.map(c => {
+    const z = avgZscore[c.key]
+    return { ...c, label: `${c.name} (${z != null ? z.toFixed(2) : 'N/A'})` }
+  })
+
   return (
-    <div style={{ position: 'sticky', top: 0, width, height, overflow: 'clip', background: '#000d1f' }}>
+    <div
+      style={{ position: 'sticky', top: 0, width, height, overflow: 'clip', background: 'var(--bg)', cursor }}
+      onMouseMove={e => {
+        if (draggingRef.current) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        const cy = height / 2
+        // Approximate globe radius in pixels (depends on camera altitude).
+        // Globe1 sits at altitude 4 → smaller; Globe2 at default ~2.5 → larger.
+        const r1 = height * 0.32
+        const r2 = height * 0.42
+        // Globe centers shift based on split state.
+        const g1cx = split ? width / 4 : width / 2
+        const g2cx = (3 * width) / 4
+        const d1 = Math.hypot(x - g1cx, y - cy)
+        const overG1 = d1 <= r1
+        const overG2 = split && Math.hypot(x - g2cx, y - cy) <= r2
+        setCursor(overG1 || overG2 ? 'grab' : 'auto')
+      }}
+      onMouseDown={e => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        const cy = height / 2
+        const r1 = height * 0.32
+        const r2 = height * 0.42
+        const g1cx = split ? width / 4 : width / 2
+        const g2cx = (3 * width) / 4
+        const overG1 = Math.hypot(x - g1cx, y - cy) <= r1
+        const overG2 = split && Math.hypot(x - g2cx, y - cy) <= r2
+        if (overG1 || overG2) {
+          draggingRef.current = true
+          setCursor('grabbing')
+        }
+      }}
+      onMouseUp={() => {
+        draggingRef.current = false
+        setCursor('grab')
+      }}
+      onMouseLeave={() => {
+        draggingRef.current = false
+        setCursor('auto')
+      }}
+    >
       {/* Globe 1: starts centred, slides left on split */}
       <div style={{
         position: 'absolute',
@@ -183,15 +274,15 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           left: globeWidth * 0.1,
           width: globeWidth * 0.8,
           textAlign: 'center',
-          color: 'white',
-          fontSize: 24,
-          fontFamily: 'sans-serif',
-          fontWeight: 600,
+          color: 'var(--text)',
+          fontSize: 'var(--fs-md)',
+          fontFamily: 'var(--font-sans)',
+          fontWeight: 'var(--fw-semi)',
           pointerEvents: 'none',
           zIndex: 1,
           textShadow: '0 1px 4px rgba(0,0,0,0.8)',
         }}>
-          The most successful countries at the Olympics are believed to be the US, China and Germany.
+          Counting all medals, the most successful countries at the Olympics are believed to be the US, China and Germany.
         </div>
         <div style={{
           position: 'absolute',
@@ -199,16 +290,37 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           left: 0,
           width: globeWidth,
           textAlign: 'center',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: 24,
-          fontFamily: 'sans-serif',
+          color: 'var(--text-soft)',
+          fontSize: 'var(--fs-md)',
+          fontFamily: 'var(--font-sans)',
           pointerEvents: 'none',
           zIndex: 1,
           textShadow: '0 1px 4px rgba(0,0,0,0.8)',
           transition: 'opacity 0.4s ease',
           opacity: split ? 0 : 1,
         }}>
-          Scroll down to see if this is the whole story
+          Scroll down to see how a different success metric changes the picture.
+        </div>
+        <div style={{
+          position: 'absolute',
+          top: '80%',
+          right: '10%',
+          color: 'var(--text-soft)',
+          fontSize: 'var(--fs-md)',
+          fontFamily: 'var(--font-sans)',
+          pointerEvents: 'none',
+          zIndex: 1,
+          textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 11V6a2 2 0 1 1 4 0v5" />
+            <path d="M13 8a2 2 0 1 1 4 0v4" />
+            <path d="M17 10a2 2 0 1 1 3 0v5a6 6 0 0 1-6 6h-2a6 6 0 0 1-5.2-3l-3-5.2a2 2 0 0 1 3.5-2L9 13" />
+          </svg>
+          Drag to explore
         </div>
 
         <Globe
@@ -224,6 +336,11 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
             const total = medals[geoKey(d)] ?? 0
             return `<div><b>${d.ADMIN}</b><br/>Total medals: <i>${total}</i></div>`
           }}
+          htmlElementsData={globe1Markers}
+          htmlLat={(d: object) => (d as { lat: number }).lat}
+          htmlLng={(d: object) => (d as { lng: number }).lng}
+          htmlAltitude={0.04}
+          htmlElement={(d: object) => makeMarkerElement((d as { label: string }).label)}
         />
       </div>
 
@@ -242,15 +359,15 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           left: globeWidth * 0.1,
           width: globeWidth * 0.8,
           textAlign: 'center',
-          color: 'white',
-          fontSize: 24,
-          fontFamily: 'sans-serif',
-          fontWeight: 600,
+          color: 'var(--text)',
+          fontSize: 'var(--fs-md)',
+          fontFamily: 'var(--font-sans)',
+          fontWeight: 'var(--fw-semi)',
           pointerEvents: 'none',
           zIndex: 1,
           textShadow: '0 1px 4px rgba(0,0,0,0.8)',
         }}>
-          But if we look at how countries perform relative to their size and wealth, unexpected nations like Kenya and Hungary come out on top.
+          Looking at how countries perform relative to population and wealth, nations like Kenya and Hungary come out on top.
         </div>
         <Globe
           ref={globeEl2}
@@ -261,9 +378,13 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
             const { properties: d } = feat as CountryFeature
             const z = avgZscore[geoKey(d)]
             const zStr = z != null ? z.toFixed(2) : 'N/A'
-            const total = medals[geoKey(d)] ?? 0
-            return `<div><b>${d.ADMIN}</b><br/>Avg z-score: <i>${zStr}</i><br/>Total medals: <i>${total}</i></div>`
+            return `<div><b>${d.ADMIN}</b><br/>Relative performance: <i>${zStr}</i></div>`
           }}
+          htmlElementsData={globe2Markers}
+          htmlLat={(d: object) => (d as { lat: number }).lat}
+          htmlLng={(d: object) => (d as { lng: number }).lng}
+          htmlAltitude={0.04}
+          htmlElement={(d: object) => makeMarkerElement((d as { label: string }).label)}
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ The website for our project is built using Vite and React. To set up the project
 Inside this directory, run the following command to install the dependencies:
 
 ```bash
-npm install
+npm install --ignore-scripts
 ```
 
 # Development
