@@ -18,8 +18,11 @@
 
 ## Milestone 3 (29th May, 5pm)
 
-**80% of the final grade**
+[Link to our Process Book](./MS3/ProcessBook_GSP.pdf)
 
+[Link to our Final Website](https://com-480-data-visualization.github.io/GSP/)
+
+[Link to our Screencast](./MS3/screencast.mov)
 
 # Setup
 
