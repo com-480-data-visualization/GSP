@@ -1,64 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface CountryPoint {
-  country: string
-  code: string
-  gdp_per_capita: number
-  population: number  // millions
-  medal_count: number
-  predicted: number
-  ratio: number       // actual / expected — >1 means over-performing
-  zscore: number
-}
-
-interface YearData {
-  countries: CountryPoint[]
-  curve: [number, number][]  // [[gdp_per_capita, predicted_medals], ...] at median population
-}
-
-interface SeasonData {
-  years: number[]
-  byYear: Record<string, YearData>
-}
-
-interface GapminderData {
-  meta: { gdpMin: number; gdpMax: number; ratioMax: number }
-  Summer: SeasonData
-  Winter: SeasonData
-}
-
-type Season = 'Summer' | 'Winter'
-
-// ─── IOC → ISO2 flag lookup (shared with RacingBarChart) ─────────────────────
-
-const IOC_TO_ISO2: Record<string, string> = {
-  AFG: 'af', ALB: 'al', ARE: 'ae', ARG: 'ar', ARM: 'am', AUS: 'au', AUT: 'at',
-  AZE: 'az', BDI: 'bi', BEL: 'be', BGR: 'bg', BHS: 'bs', BLR: 'by', BMU: 'bm',
-  BRA: 'br', CAN: 'ca', CHE: 'ch', CHL: 'cl', CHN: 'cn', CIV: 'ci', CMR: 'cm',
-  COL: 'co', CRI: 'cr', CUB: 'cu', CYP: 'cy', CZE: 'cz', DEU: 'de', DNK: 'dk',
-  DOM: 'do', DZA: 'dz', ECU: 'ec', EGY: 'eg', ERI: 'er', ESP: 'es', EST: 'ee',
-  ETH: 'et', FIN: 'fi', FJI: 'fj', FRA: 'fr', GBR: 'gb', GEO: 'ge', GHA: 'gh',
-  GRC: 'gr', GRD: 'gd', GTM: 'gt', HKG: 'hk', HRV: 'hr', HUN: 'hu', IDN: 'id',
-  IND: 'in', IRL: 'ie', IRN: 'ir', IRQ: 'iq', ISL: 'is', ISR: 'il', ITA: 'it',
-  JAM: 'jm', JPN: 'jp', KAZ: 'kz', KEN: 'ke', KGZ: 'kg', KOR: 'kr', KWT: 'kw',
-  LTU: 'lt', LUX: 'lu', LVA: 'lv', MAR: 'ma', MDA: 'md', MEX: 'mx', MKD: 'mk',
-  MNG: 'mn', MOZ: 'mz', NGA: 'ng', NLD: 'nl', NOR: 'no', NZL: 'nz', PAK: 'pk',
-  PAN: 'pa', PER: 'pe', POL: 'pl', PRT: 'pt', PRY: 'py', QAT: 'qa', ROU: 'ro',
-  RUS: 'ru', SAU: 'sa', SDN: 'sd', SEN: 'sn', SGP: 'sg', SRB: 'rs', SVK: 'sk',
-  SVN: 'si', SWE: 'se', SYR: 'sy', THA: 'th', TJK: 'tj', TTO: 'tt', TUN: 'tn',
-  TUR: 'tr', TZA: 'tz', UGA: 'ug', UKR: 'ua', URY: 'uy', USA: 'us', UZB: 'uz',
-  VEN: 've', VNM: 'vn', ZAF: 'za', ZMB: 'zm', ZWE: 'zw',
-}
-
-function flagEmoji(code: string): string {
-  const iso2 = IOC_TO_ISO2[code]
-  if (!iso2) return '🏳'
-  return [...iso2.toUpperCase()]
-    .map(c => String.fromCodePoint(c.charCodeAt(0) + 127397))
-    .join('')
-}
+import type { OlympicCountryRecord as CountryPoint, YearData, GapminderData, Season } from '../types/olympics'
+import { iocToFlagEmoji as flagEmoji } from '../data/countryMaps'
 
 // ─── Scale helpers ────────────────────────────────────────────────────────────
 
@@ -92,8 +34,8 @@ function zscoreLabel(z: number): string {
 // ─── SVG Scatter Plot ─────────────────────────────────────────────────────────
 
 const MARGIN = { top: 24, right: 24, bottom: 56, left: 64 }
-const PLOT_W = 680
-const PLOT_H = 420
+const PLOT_W = 820
+const PLOT_H = 540
 const SVG_W = PLOT_W + MARGIN.left + MARGIN.right
 const SVG_H = PLOT_H + MARGIN.top + MARGIN.bottom
 

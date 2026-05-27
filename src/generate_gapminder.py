@@ -91,11 +91,12 @@ def merge_shared_codes(df: pd.DataFrame) -> pd.DataFrame:
         df.groupby(["gdp_country_code", "year", "season"], as_index=False)
         .agg(
             country=("country",        lambda names: " + ".join(sorted(set(names)))),
-            gdp_per_capita=("gdp_per_capita", "first"),
-            population=("population",  "first"),
+            gdp_current_usd=("gdp_current_usd", "sum"),
+            population=("population",  "sum"),
             medal_count=("medal_count", "sum"),
         )
     )
+    grouped["gdp_per_capita"] = grouped["gdp_current_usd"] / grouped["population"]
 
     def clean_name(row: pd.Series) -> str:
         if "+" not in row["country"]:
