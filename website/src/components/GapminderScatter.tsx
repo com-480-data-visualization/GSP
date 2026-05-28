@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import type { OlympicCountryRecord as CountryPoint, YearData, GapminderData, Season } from '../types/olympics'
 import { iocToFlagEmoji as flagEmoji } from '../data/countryMaps'
 
@@ -31,20 +31,55 @@ function zscoreLabel(z: number): string {
   return z >= 0 ? `+${abs}σ` : `−${abs}σ`
 }
 
-// ─── SVG Scatter Plot ─────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const MARGIN = { top: 24, right: 24, bottom: 56, left: 64 }
-const PLOT_W = 820
-const PLOT_H = 540
-const SVG_W = PLOT_W + MARGIN.left + MARGIN.right
-const SVG_H = PLOT_H + MARGIN.top + MARGIN.bottom
-
-const GDP_TICKS   = [100, 300, 1000, 3000, 10000, 30000, 100000]
+const MARGIN     = { top: 24, right: 24, bottom: 56, left: 64 }
+const PLOT_H     = 520
+const GDP_TICKS  = [100, 300, 1000, 3000, 10000, 30000, 100000]
 const RATIO_TICKS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 function bubbleRadius(medals: number): number {
   return Math.max(4, Math.sqrt(medals) * 2.4)
 }
+
+// ─── Color legend (above chart) ───────────────────────────────────────────────
+
+const LEGEND_ITEMS = [
+  { color: '#f59e0b', label: 'Far above' },
+  { color: '#fbbf24', label: 'Above' },
+  { color: '#94a3b8', label: 'On par' },
+  { color: '#93c5fd', label: 'Below' },
+  { color: '#3b82f6', label: 'Far below' },
+]
+
+function ColorLegend() {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      marginBottom: '1rem', flexWrap: 'wrap',
+    }}>
+      <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', marginRight: 4 }}>
+        Performance vs. expectation:
+      </span>
+      {LEGEND_ITEMS.map(({ color, label }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+          <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>{label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── How-to-use hints ────────────────────────────────────────────────────────
+
+const HINTS = [
+  { glyph: '○', label: 'Hover', detail: 'a bubble to see country details' },
+  { glyph: '◉', label: 'Click', detail: 'to pin and trace its path over time' },
+  { glyph: '▶', label: 'Play', detail: 'to animate through history from 1960-2024' },
+]
+
+// ─── Scatter plot ─────────────────────────────────────────────────────────────
 
 interface TooltipState {
   x: number
@@ -60,26 +95,30 @@ interface ScatterPlotProps {
   pinnedCode: string | null
   allYearData: YearData[]
   currentYearIndex: number
+  currentYear: number | string
+  plotWidth: number
   onPin: (code: string | null) => void
 }
 
-function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearData, currentYearIndex, onPin }: ScatterPlotProps) {
+function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearData, currentYearIndex, currentYear, plotWidth, onPin }: ScatterPlotProps) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
+  const PLOT_W = plotWidth
+  const SVG_W  = PLOT_W + MARGIN.left + MARGIN.right
+  const SVG_H  = PLOT_H + MARGIN.top  + MARGIN.bottom
+
   const xPos = useCallback(
     (gdp: number) => logScale(gdp, gdpMin, gdpMax, 0, PLOT_W),
-    [gdpMin, gdpMax]
+    [gdpMin, gdpMax, PLOT_W]
   )
-  // Y axis: actual / expected ratio (1 = exactly as expected, >1 = over-performing)
   const yPos = useCallback(
     (ratio: number) => linearScale(Math.min(ratio, ratioMax), 0, ratioMax, PLOT_H, 0),
     [ratioMax]
   )
 
-  const baselineY = yPos(1)  // flat "expected" line at ratio = 1
+  const baselineY = yPos(1)
 
-  // Trajectory for pinned country — shows ratio over time as GDP changed
   const trajectoryPoints = pinnedCode
     ? allYearData
         .slice(0, currentYearIndex + 1)
@@ -95,30 +134,43 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
       const rect = svgRef.current.getBoundingClientRect()
       setTooltip({
         x: e.clientX - rect.left - MARGIN.left,
-        y: e.clientY - rect.top - MARGIN.top,
+        y: e.clientY - rect.top  - MARGIN.top,
         point,
       })
     },
     []
   )
 
-  // Label top 6 over-performers by ratio
   const labelled = new Set(
     [...yearData.countries].sort((a, b) => b.ratio - a.ratio).slice(0, 6).map(c => c.code)
   )
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div style={{ position: 'relative', width: '100%' }}>
       <svg
         ref={svgRef}
         width={SVG_W}
         height={SVG_H}
-        style={{ overflow: 'visible' }}
+        style={{ overflow: 'visible', maxWidth: '100%', display: 'block' }}
         onMouseLeave={() => setTooltip(null)}
       >
         <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
 
-          {/* Subtle shading: above baseline = gold tint, below = blue tint */}
+          {/* Ghost year watermark — Gapminder style */}
+          <text
+            x={PLOT_W - 4}
+            y={PLOT_H - 10}
+            textAnchor="end"
+            fill="var(--text)"
+            fontSize={100}
+            fontWeight={800}
+            opacity={0.07}
+            style={{ pointerEvents: 'none', userSelect: 'none' }}
+          >
+            {currentYear}
+          </text>
+
+          {/* Background shading */}
           <rect x={0} y={0} width={PLOT_W} height={baselineY} fill="#f59e0b" fillOpacity={0.04} />
           <rect x={0} y={baselineY} width={PLOT_W} height={PLOT_H - baselineY} fill="#3b82f6" fillOpacity={0.04} />
 
@@ -142,8 +194,10 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
             )
           })}
 
-          {/* Flat "expected" baseline at ratio = 1 */}
-          <text x={PLOT_W - 4} y={baselineY - 6} fill="#64748b" fontSize={10} textAnchor="end">
+          {/* Baseline label — left-aligned with background pill, more visible */}
+          <rect x={2} y={baselineY - 17} width={84} height={15} rx={2}
+            fill="var(--bg-panel)" fillOpacity={0.85} />
+          <text x={6} y={baselineY - 5} fill="#cbd5e1" fontSize={10} fontWeight={600}>
             1× expected
           </text>
 
@@ -155,7 +209,7 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
               strokeOpacity={0.55} strokeDasharray="4,3" />
           )}
 
-          {/* Bubbles — Y = ratio, size = actual medals, color = zscore */}
+          {/* Bubbles */}
           {yearData.countries.map(c => {
             const cx = xPos(c.gdp_per_capita)
             const cy = yPos(c.ratio)
@@ -245,7 +299,7 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
           style={{
             position: 'absolute',
             left: tooltip.x + MARGIN.left + 12,
-            top: tooltip.y + MARGIN.top - 10,
+            top:  tooltip.y + MARGIN.top  - 10,
             background: 'var(--bg-panel)',
             border: '1px solid var(--border)',
             borderRadius: 8,
@@ -278,8 +332,8 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 
 function Leaderboard({ countries }: { countries: CountryPoint[] }) {
-  const top5 = countries.slice(0, 5)
-  const bottom5 = [...countries].sort((a, b) => a.zscore - b.zscore).slice(0, 5)
+  const top5    = countries.slice(0, 4)
+  const bottom5 = [...countries].sort((a, b) => a.zscore - b.zscore).slice(0, 4)
 
   const Row = ({ c }: { c: CountryPoint }) => (
     <div style={{
@@ -297,11 +351,7 @@ function Leaderboard({ countries }: { countries: CountryPoint[] }) {
           {c.medal_count} medals · {c.predicted} expected
         </div>
       </div>
-      <div style={{
-        fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)',
-        color: zscoreColor(c.zscore),
-        flexShrink: 0,
-      }}>
+      <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)', color: zscoreColor(c.zscore), flexShrink: 0 }}>
         {c.ratio.toFixed(1)}×
       </div>
     </div>
@@ -316,60 +366,76 @@ function Leaderboard({ countries }: { countries: CountryPoint[] }) {
         }}>
           Over-performers
         </div>
-        {top5.map(c => <Row key={c.code} c={c}  />)}
+        {top5.map(c => <Row key={c.code} c={c} />)}
       </div>
       <div>
         <div style={{
           fontSize: 'var(--fs-xs)', fontWeight: 'var(--fw-bold)', color: 'var(--accent)',
-          textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6,
-          marginTop: 16,
+          textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6, marginTop: 16,
         }}>
           Under-performers
         </div>
-        {bottom5.map(c => <Row key={c.code} c={c}  />)}
+        {bottom5.map(c => <Row key={c.code} c={c} />)}
       </div>
     </div>
   )
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function GapminderScatter() {
-  const [data, setData] = useState<GapminderData | null>(null)
-  const [season, setSeason] = useState<Season>('Summer')
-  const [yearIndex, setYearIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [pinnedCode, setPinnedCode] = useState<string | null>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [data,        setData]        = useState<GapminderData | null>(null)
+  const [season,      setSeason]      = useState<Season>('Summer')
+  const [yearIndex,   setYearIndex]   = useState(0)
+  const [isPlaying,   setIsPlaying]   = useState(false)
+  const [pinnedCode,  setPinnedCode]  = useState<string | null>(null)
+  const intervalRef   = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Responsive plot width via ResizeObserver on the chart column
+  const chartColRef    = useRef<HTMLDivElement>(null)
+  const aboveSliderRef = useRef<HTMLDivElement>(null)
+  const [plotWidth,      setPlotWidth]      = useState(820)
+  const [leaderboardTop, setLeaderboardTop] = useState(0)
+
+  useEffect(() => {
+    const el = chartColRef.current
+    if (!el) return
+    const ro = new ResizeObserver(entries => {
+      const w = Math.floor(entries[0].contentRect.width)
+      setPlotWidth(Math.max(380, w - 4))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  useLayoutEffect(() => {
+    const el = aboveSliderRef.current
+    if (!el) return
+    const update = () => setLeaderboardTop(el.offsetHeight)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [data])
 
   useEffect(() => {
     fetch(import.meta.env.BASE_URL + 'data/gapminder_scatter.json')
       .then(r => r.json())
-      .then((d: GapminderData) => {
-        setData(d)
-        setYearIndex(0)
-      })
+      .then((d: GapminderData) => { setData(d); setYearIndex(0) })
       .catch(err => console.error('Failed to load gapminder data:', err))
   }, [])
 
-  const seasonData = data?.[season]
-  const years = seasonData?.years ?? []
-  const currentYear = years[yearIndex]
+  const seasonData    = data?.[season]
+  const years         = seasonData?.years ?? []
+  const currentYear   = years[yearIndex]
   const currentYearData = currentYear ? seasonData?.byYear[String(currentYear)] : null
-  const allYearData = years.map(y => seasonData!.byYear[String(y)])
+  const allYearData   = years.map(y => seasonData!.byYear[String(y)])
 
-  // Animation
   useEffect(() => {
-    if (!isPlaying) {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      return
-    }
+    if (!isPlaying) { if (intervalRef.current) clearInterval(intervalRef.current); return }
     intervalRef.current = setInterval(() => {
       setYearIndex(prev => {
-        if (prev >= years.length - 1) {
-          setIsPlaying(false)
-          return prev
-        }
+        if (prev >= years.length - 1) { setIsPlaying(false); return prev }
         return prev + 1
       })
     }, 1200)
@@ -377,10 +443,7 @@ export default function GapminderScatter() {
   }, [isPlaying, years.length])
 
   const handleSeasonChange = (s: Season) => {
-    setSeason(s)
-    setYearIndex(0)
-    setIsPlaying(false)
-    setPinnedCode(null)
+    setSeason(s); setYearIndex(0); setIsPlaying(false); setPinnedCode(null)
   }
 
   const handlePlay = () => {
@@ -397,156 +460,143 @@ export default function GapminderScatter() {
   }
 
   const { meta } = data
+  const svgTotalW  = plotWidth + MARGIN.left + MARGIN.right
 
   return (
     <div style={{ color: 'var(--text)', fontFamily: 'var(--font-sans)', display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-      <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+      <div ref={chartColRef} style={{ flex: '1 1 0%', minWidth: 0 }}>
 
-      {/* Header */}
-      <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
-        Who exceeded Olympic expectations?
-      </h2>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: 'var(--fs-sm)', maxWidth: 700 }}>
-        Let's have a look at individual Olympic summer and winter games. We show the countries' relative performance as described above. Each bubble is a medal-winning country, in the size of the number of medals won at that event.
-          Gold bubbles punch above their weight; blue bubbles underperform relative to their wealth.
-      </p>
+        {/* Everything above the play button — measured so leaderboard aligns with it */}
+        <div ref={aboveSliderRef} style={{ overflow: 'hidden' }}>
 
-      {/* Controls row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        {/* Season toggle */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {(['Summer', 'Winter'] as Season[]).map(s => (
-            <button
-              key={s}
-              onClick={() => handleSeasonChange(s)}
-              style={{
-                padding: '0.4rem 1.2rem',
-                borderRadius: 6,
-                border: '2px solid var(--accent)',
-                background: season === s ? 'var(--accent)' : 'transparent',
-                color: season === s ? '#fff' : 'var(--accent)',
-                fontFamily: 'var(--font-sans)',
-                fontWeight: 'var(--fw-semi)',
-                cursor: 'pointer',
-                fontSize: 'var(--fs-sm)',
-              }}
-            >
-              {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
-            </button>
-          ))}
+        {/* Header */}
+        <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
+          Who exceeded Olympic expectations?
+        </h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: 'var(--fs-sm)', maxWidth: 700 }}>
+          Each bubble is a medal-winning country, sized by medals won. Gold bubbles punch above their weight;
+          blue bubbles underperform relative to their wealth and population.
+        </p>
+
+        {/* Season toggle + pinned indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {(['Summer', 'Winter'] as Season[]).map(s => (
+              <button
+                key={s}
+                onClick={() => handleSeasonChange(s)}
+                style={{
+                  padding: '0.4rem 1.2rem', borderRadius: 6,
+                  border: '2px solid var(--accent)',
+                  background: season === s ? 'var(--accent)' : 'transparent',
+                  color: season === s ? '#fff' : 'var(--accent)',
+                  fontFamily: 'var(--font-sans)', fontWeight: 'var(--fw-semi)',
+                  cursor: 'pointer', fontSize: 'var(--fs-sm)',
+                }}
+              >
+                {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
+              </button>
+            ))}
+          </div>
+
+          {pinnedCode && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: 'var(--bg-panel)', border: '1px solid var(--gold)',
+              borderRadius: 20, padding: '4px 12px',
+            }}>
+              <span>{flagEmoji(pinnedCode)}</span>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--gold-soft)' }}>
+                {currentYearData.countries.find(c => c.code === pinnedCode)?.country ?? pinnedCode}
+              </span>
+              <button
+                onClick={() => setPinnedCode(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: 'var(--fs-sm)', padding: 0 }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Pinned country indicator */}
-        {pinnedCode && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'var(--bg-panel)', border: '1px solid var(--gold)',
-            borderRadius: 20, padding: '4px 12px',
-            fontFamily: 'var(--font-sans)',
+        </div>{/* end aboveSliderRef */}
+
+        {/* Year slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', maxWidth: svgTotalW }}>
+          <span style={{
+            fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-bold)', color: 'var(--text)',
+            letterSpacing: '-0.03em', lineHeight: 1, flexShrink: 0, minWidth: 64,
           }}>
-            <span>{flagEmoji(pinnedCode)}</span>
-            <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--gold-soft)' }}>
-              {currentYearData.countries.find(c => c.code === pinnedCode)?.country ?? pinnedCode}
-            </span>
-            <button
-              onClick={() => setPinnedCode(null)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: 'var(--fs-sm)', padding: 0 }}
-            >
-              ✕
-            </button>
+            {currentYear}
+          </span>
+          <button
+            onClick={handlePlay}
+            style={{
+              padding: '0.4rem 1rem', borderRadius: 6,
+              border: '2px solid var(--text-faint)',
+              background: isPlaying ? 'var(--text-faint)' : 'transparent',
+              color: 'var(--text)', fontFamily: 'var(--font-sans)',
+              fontWeight: 'var(--fw-semi)', cursor: 'pointer',
+              fontSize: 'var(--fs-sm)', minWidth: 90, flexShrink: 0,
+            }}
+          >
+            {isPlaying ? '⏸ Pause' : yearIndex >= years.length - 1 ? '↺ Replay' : '▶ Play'}
+          </button>
+          <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[0]}</span>
+          <input
+            type="range" min={0} max={years.length - 1} value={yearIndex}
+            onChange={e => { setYearIndex(Number(e.target.value)); setIsPlaying(false) }}
+            style={{ flex: 1, accentColor: 'var(--accent)' }}
+          />
+          <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[years.length - 1]}</span>
+        </div>
+
+        {/* Chart — column wrapper guarantees legend is always above the SVG */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <ColorLegend />
+          <ScatterPlot
+            yearData={currentYearData}
+            gdpMin={meta.gdpMin}
+            gdpMax={meta.gdpMax}
+            ratioMax={meta.ratioMax}
+            pinnedCode={pinnedCode}
+            allYearData={allYearData}
+            currentYearIndex={yearIndex}
+            currentYear={currentYear}
+            plotWidth={plotWidth}
+            onPin={setPinnedCode}
+          />
+          {/* How-to-use strip */}
+          <div style={{
+            display: 'block',
+            padding: '9px 14px',
+            background: 'var(--bg-elev)',
+            border: '1px solid var(--border-soft)',
+            borderRadius: 8,
+            marginTop: '1rem',
+            fontSize: 'var(--fs-xs)',
+            lineHeight: 1.8,
+          }}>
+            <span style={{ color: 'var(--text-faint)', fontWeight: 'var(--fw-semi)' }}>How to use —</span>
+            {HINTS.map(({ glyph, label, detail }, i) => (
+              <span key={label}>
+                {' '}
+                <span style={{ color: 'var(--accent-soft)' }}>{glyph}</span>
+                {' '}
+                <span style={{ color: 'var(--text-soft)', fontWeight: 'var(--fw-semi)' }}>{label}</span>
+                {' '}
+                <span style={{ color: 'var(--text-dim)' }}>{detail}</span>
+                {i < HINTS.length - 1 && <span style={{ color: 'var(--text-faint)' }}> ·</span>}
+              </span>
+            ))}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Year slider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', maxWidth: SVG_W }}>
-        {/* Year label */}
-        <span style={{
-          fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-bold)', color: 'var(--text)',
-          letterSpacing: '-0.03em', lineHeight: 1,
-          transition: 'opacity 0.3s',
-          flexShrink: 0,
-          minWidth: 64,
-        }}>
-          {currentYear}
-        </span>
-
-        {/* Play/Pause */}
-        <button
-          onClick={handlePlay}
-          style={{
-            padding: '0.4rem 1rem',
-            borderRadius: 6,
-            border: '2px solid var(--text-faint)',
-            background: isPlaying ? 'var(--text-faint)' : 'transparent',
-            color: 'var(--text)',
-            fontFamily: 'var(--font-sans)',
-            fontWeight: 'var(--fw-semi)',
-            cursor: 'pointer',
-            fontSize: 'var(--fs-sm)',
-            minWidth: 90,
-            flexShrink: 0,
-          }}
-        >
-          {isPlaying ? '⏸ Pause' : yearIndex >= years.length - 1 ? '↺ Replay' : '▶ Play'}
-        </button>
-
-        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[0]}</span>
-        <input
-          type="range"
-          min={0}
-          max={years.length - 1}
-          value={yearIndex}
-          onChange={e => {
-            setYearIndex(Number(e.target.value))
-            setIsPlaying(false)
-          }}
-          style={{ flex: 1, accentColor: 'var(--accent)' }}
-        />
-        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[years.length - 1]}</span>
-      </div>
-
-      {/* Scatter plot */}
-      <ScatterPlot
-        yearData={currentYearData}
-        gdpMin={meta.gdpMin}
-        gdpMax={meta.gdpMax}
-        ratioMax={meta.ratioMax}
-        pinnedCode={pinnedCode}
-        allYearData={allYearData}
-        currentYearIndex={yearIndex}
-        onPin={setPinnedCode}
-      />
-
-      {/* Color legend */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        marginTop: '1.25rem', flexWrap: 'wrap',
-      }}>
-        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', marginRight: 4 }}>Performance vs. expectation:</span>
-        {[
-          { color: '#f59e0b', label: 'Far above' },
-          { color: '#fbbf24', label: 'Above' },
-          { color: '#94a3b8', label: 'On par' },
-          { color: '#93c5fd', label: 'Below' },
-          { color: '#3b82f6', label: 'Far below' },
-        ].map(({ color, label }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>{label}</span>
-          </div>
-        ))}
-      </div>
-
-      </div>
-
-      {/* Right column: leaderboard */}
-      <div style={{ flexShrink: 0, marginTop: 50 }}>
+      {/* Leaderboard */}
+      <div style={{ flexShrink: 0, marginTop: leaderboardTop }}>
         <Leaderboard countries={currentYearData.countries} />
-        <p style={{ marginTop: 16, fontSize: 'var(--fs-xs)', color: 'var(--text-faint)', maxWidth: 220 }}>
-          Click any bubble to trace its journey over time.
-        </p>
       </div>
     </div>
   )

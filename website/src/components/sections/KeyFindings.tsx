@@ -1,15 +1,15 @@
 const FINDINGS = [
   {
-    title: 'Medal counts favor the big and rich',
-    body:  'Population and GDP per capita help explain a country\'s medal haul, showing why absolute totals often track size and wealth.',
+    title: 'Medals track wealth and population',
+    body:  'The USA, China and Russia dominate raw counts largely because their size and GDP give them a vast pool of athletes and resources — the medal table measures economic might as much as athletic merit.',
   },
   {
-    title: 'Some countries exceed expectation',
-    body:  'Once we control for resources, several countries win far more medals than expected, while others underperform relative to their economic and population profile.',
+    title: 'Some nations punch far above their weight',
+    body:  'Kenya, Hungary and Cuba consistently win far more medals than their GDP per capita predicts — sometimes by a factor of 5× or more. Controlling for resources reshuffles the table completely.',
   },
   {
-    title: 'Efficiency tells a different history',
-    body:  'The bar chart race contrasts cumulative medals with a cumulative efficiency index, showing that the medal leader is often not the most resource-efficient performer.',
+    title: 'Efficiency rewrites Olympic history',
+    body:  'In the cumulative bar chart race the USA leads total medals by a wide margin, yet Kenya and Hungary top the efficiency ranking. Nations that do more with less write a different story.',
   },
 ]
 
