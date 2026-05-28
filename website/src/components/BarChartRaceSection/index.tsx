@@ -20,7 +20,7 @@ interface Props {
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const SIDE_MARGIN = 48   // px gutter on each side
-const HEADER_H    = 230  // px for title + subtitle + insight + controls strip
+const HEADER_H    = 215  // px for title + toggles row + insight box + controls strip
 
 export default function BarChartRaceSection({ width, height }: Props) {
   const [season,        setSeason]        = useState<Season>('Summer')
@@ -237,7 +237,7 @@ export default function BarChartRaceSection({ width, height }: Props) {
       background: 'var(--bg)',
     }}>
 
-      {/* ── Header: title, description, season/speed toggles, playback controls */}
+      {/* ── Header: title, insight+toggles row, playback controls */}
       <div style={{
         position:       'absolute',
         top:            0,
@@ -248,34 +248,12 @@ export default function BarChartRaceSection({ width, height }: Props) {
         flexDirection:  'column',
         alignItems:     'center',
         justifyContent: 'center',
-        gap:            12,
+        gap:            14,
         zIndex:         10,
       }}>
-        <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
+        <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', margin: 0 }}>
           Olympic efficiency over time
         </h2>
-        <span style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)' }}>
-          Left: total medals since 1960 &nbsp;·&nbsp; Right: actual ÷ expected medals &nbsp;·&nbsp;
-          <span style={{ color: 'var(--accent)' }}>1 = on target</span>, higher = overperforming
-        </span>
-
-        {/* Season-aware insight callout */}
-        <div style={{
-          background:   'rgba(245,158,11,0.10)',
-          border:       '1px solid rgba(245,158,11,0.35)',
-          borderRadius: 8,
-          padding:      '7px 18px',
-          fontSize:     'var(--fs-sm)',
-          fontWeight:   'var(--fw-semi)',
-          color:        'rgba(255,255,255,0.92)',
-          maxWidth:     600,
-          textAlign:    'center',
-          lineHeight:   1.55,
-        }}>
-          💡&nbsp;{season === 'Summer'
-            ? <><span style={{ color: '#fbbf24' }}>Cuba &amp; Hungary</span> sit near the top of the right chart despite rarely leading the left — efficiency tells a very different story.</>
-            : <><span style={{ color: '#fbbf24' }}>Norway &amp; Finland</span> dominate the right chart — their efficiency lead far outstrips their absolute medal count on the left.</>}
-        </div>
 
         {/* Season + speed toggles */}
         <div style={{ display: 'flex', gap: 10 }}>
@@ -287,6 +265,22 @@ export default function BarChartRaceSection({ width, height }: Props) {
           <button onClick={() => setSpeed2x(v => !v)} style={seasonBtnStyle(speed2x)}>
             {speed2x ? '2x' : '1x'}
           </button>
+        </div>
+
+        {/* Season-aware insight box */}
+        <div style={{
+          background:   'rgba(245,158,11,0.08)',
+          border:       '1px solid rgba(245,158,11,0.30)',
+          borderRadius: 7,
+          padding:      '5px 16px',
+          fontSize:     'var(--fs-xs)',
+          fontWeight:   'var(--fw-semi)',
+          color:        'rgba(255,255,255,0.88)',
+          whiteSpace:   'nowrap',
+        }}>
+          💡&nbsp;{season === 'Summer'
+            ? <><span style={{ color: '#fbbf24' }}>Cuba &amp; Hungary</span> lead in efficiency despite rarely leading in total medals</>
+            : <><span style={{ color: '#fbbf24' }}>Norway &amp; Finland</span> dominate efficiency — small nations, outsized Winter impact</>}
         </div>
 
         <RaceControls

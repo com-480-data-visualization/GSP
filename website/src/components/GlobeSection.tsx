@@ -161,6 +161,11 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeEl2 = useRef<any>(undefined!)
 
+  // Suppress all CSS transitions on the initial render so the globes don't
+  // "flicker in" to their starting position when the page is refreshed.
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => { setIsMounted(true) }, [])
+
   const [cursor,             setCursor]             = useState<'grab' | 'grabbing' | 'auto'>('auto')
   const draggingRef                                  = useRef(false)
   const [countries,          setCountries]          = useState<CountriesData>({ features: [] })
@@ -237,8 +242,9 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         }})
         // Trigger the colour effect for the first time
         setDataStats({ maxMedals, minZ, maxZ })
-        // Switch to fast transitions once the entry animation finishes
-        setTimeout(() => setTransitionDuration(100), 2500)
+        // Drop to 0 after the entry animation so hover colour changes
+        // are instant and don't trigger a per-polygon pop on every country.
+        setTimeout(() => setTransitionDuration(0), 2500)
       }, 1000)
     })
   }, [])
@@ -435,7 +441,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         position:   'absolute',
         top:        0,
         left:       0,
-        transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: isMounted ? 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
         transform:  split ? 'translateX(0)' : `translateX(${width / 4}px)`,
       }}>
         {/* Title + legend */}
@@ -545,7 +551,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         position:   'absolute',
         top:        0,
         left:       width / 2,
-        transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease',
+        transition: isMounted ? 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease' : 'none',
         transform:  split ? 'translateX(0)' : `translateX(${width / 2}px)`,
         opacity:    split ? 1 : 0,
       }}>

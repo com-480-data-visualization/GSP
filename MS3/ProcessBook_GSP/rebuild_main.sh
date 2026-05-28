@@ -2,7 +2,6 @@
 set -euo pipefail
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 OUT_MAIN="$BASE_DIR/main.html"
-OUT_ROOT="$BASE_DIR/../ProcessBook_GSP_source.html"
 
 cat \
   "$BASE_DIR/head.html" \
@@ -14,9 +13,8 @@ cat \
   "$BASE_DIR/sections/06-explaining-viz-part-2/section.html" \
   "$BASE_DIR/sections/07-efficiency-over-time/section.html" \
   "$BASE_DIR/sections/08-challenges-peer-assessment/section.html" \
-  "$BASE_DIR/tail.html" \
   > "$OUT_MAIN"
 
-cp "$OUT_MAIN" "$OUT_ROOT"
+printf '\n</body></html>\n' >> "$OUT_MAIN"
+
 echo "Built: $OUT_MAIN"
-echo "Synced: $OUT_ROOT"

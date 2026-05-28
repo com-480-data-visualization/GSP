@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>@font-face{font-family:'Anton';src:url(figures/anton_400.ttf) format('truetype');font-weight:400;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(figures/barlow_400.ttf) format('truetype');font-weight:400;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(figures/barlow_500.ttf) format('truetype');font-weight:500;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(figures/barlow_600.ttf) format('truetype');font-weight:600;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(figures/barlow_700.ttf) format('truetype');font-weight:700;font-style:normal;font-display:block;}@font-face{font-family:'BarlowCond';src:url(figures/barlowcond_600.ttf) format('truetype');font-weight:600;font-style:normal;font-display:block;}@font-face{font-family:'BarlowCond';src:url(figures/barlowcond_700.ttf) format('truetype');font-weight:700;font-style:normal;font-display:block;}:root{
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>@font-face{font-family:'Anton';src:url(../figures/anton_400.ttf) format('truetype');font-weight:400;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(../figures/barlow_400.ttf) format('truetype');font-weight:400;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(../figures/barlow_500.ttf) format('truetype');font-weight:500;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(../figures/barlow_600.ttf) format('truetype');font-weight:600;font-style:normal;font-display:block;}@font-face{font-family:'Barlow';src:url(../figures/barlow_700.ttf) format('truetype');font-weight:700;font-style:normal;font-display:block;}@font-face{font-family:'BarlowCond';src:url(../figures/barlowcond_600.ttf) format('truetype');font-weight:600;font-style:normal;font-display:block;}@font-face{font-family:'BarlowCond';src:url(../figures/barlowcond_700.ttf) format('truetype');font-weight:700;font-style:normal;font-display:block;}:root{
   --navy:#0A2540; --navy2:#0E2F52; --ink:#1B2733;
   --blue:#0081C8; --green:#009646; --gold:#D4A017; --goldlt:#F2C94C; --red:#CE2B37;
   --paper:#FBFAF7; --paper2:#F3F1EA; --muted:#6A7480; --line:#E2DDD2;
@@ -105,4 +105,11 @@ figcaption{font-family:'Barlow';font-size:8pt;color:var(--muted);font-style:ital
 .cv-note{font-family:'Barlow';font-style:italic;font-size:9pt;color:rgba(255,255,255,.55);margin-top:2.5mm;}
 .cv-foot{margin-top:6mm;font-family:'BarlowCond';font-weight:600;letter-spacing:.18em;
   text-transform:uppercase;font-size:8.5pt;color:rgba(255,255,255,.5);}
+@media print{
+  /* Avoid PDF flattening artifacts (rectangular halos) around raster images. */
+  figure img{
+    box-shadow:none !important;
+    border-radius:0 !important;
+  }
+}
 </style></head><body>

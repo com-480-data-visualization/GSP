@@ -38,6 +38,20 @@ const PLOT_H     = 460
 const GDP_TICKS  = [100, 300, 1000, 3000, 10000, 30000, 100000]
 const RATIO_TICKS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+// IOC codes of the host nation for each Olympic year (verified against the dataset)
+const SUMMER_HOSTS: Record<number, string> = {
+  1960: 'ITA', 1964: 'JPN', 1968: 'MEX', 1972: 'DEU',
+  1976: 'CAN', 1980: 'RUS', 1984: 'USA', 1988: 'KOR',
+  1992: 'ESP', 1996: 'USA', 2000: 'AUS', 2004: 'GRC',
+  2008: 'CHN', 2012: 'GBR', 2016: 'BRA', 2020: 'JPN', 2024: 'FRA',
+}
+const WINTER_HOSTS: Record<number, string> = {
+  1960: 'USA', 1964: 'AUT', 1968: 'FRA', 1972: 'JPN',
+  1976: 'AUT', 1980: 'USA', 1984: 'YUG', 1988: 'CAN',
+  1992: 'FRA', 1994: 'NOR', 1998: 'JPN', 2002: 'USA',
+  2006: 'ITA', 2010: 'CAN', 2014: 'RUS', 2018: 'KOR', 2022: 'CHN',
+}
+
 function bubbleRadius(medals: number): number {
   return Math.max(4, Math.sqrt(medals) * 2.4)
 }
@@ -89,39 +103,7 @@ interface InsightItem {
   season?:  Season   // if set, card only appears in this season; undefined = both
 }
 
-const SCATTER_INSIGHTS: InsightItem[] = [
-  {
-    emoji:  '🗓',
-    prompt: 'Try years 1972–1988',
-    text:   'Drag the slider to the 1970s–80s and look for the biggest outlier. East Germany (GDR) sits far above the expected line — a state-sponsored sport machine winning 3–5× its predicted medals.',
-  },
-  {
-    emoji:  '🏠',
-    prompt: 'Host country boost',
-    text:   'Press ▶ Play and watch the host nation spike above their expected line the year they host — home advantage is real, but it fades quickly once the games move on.',
-  },
-  {
-    emoji:  '📍',
-    prompt: 'Trace Jamaica 🇯🇲',
-    text:   'Tiny island of 3M people — barely a bubble before 2008, then Usain Bolt arrives and Jamaica rockets to 8× expected in 2012. The most dramatic single-country rise in the dataset.',
-    pinCode: 'JAM',
-    season:  'Summer',
-  },
-  {
-    emoji:  '📍',
-    prompt: 'Trace Italy 🇮🇹',
-    text:   'Wealthy country, large bubble — yet also above expectations. Deep multi-sport culture (cycling, fencing, swimming) keeps Italy punching above even its rich-country weight.',
-    pinCode: 'ITA',
-    season:  'Summer',
-  },
-  {
-    emoji:  '📍',
-    prompt: 'Trace Norway ❄️',
-    text:   'Despite one of the world\'s highest GDPs, Norway wins 3–6× more medals than any model predicts. In 2018 they took 39 medals — the most ever by one nation in a single Winter Games.',
-    pinCode: 'NOR',
-    season:  'Winter',
-  },
-]
+const SCATTER_INSIGHTS: InsightItem[] = []
 
 function InsightPanel({ onPin, season }: { onPin: (code: string | null) => void; season: Season }) {
   // Cards without a season tag show in both; tagged cards only appear in their season
@@ -200,10 +182,11 @@ interface ScatterPlotProps {
   currentYearIndex: number
   currentYear: number | string
   plotWidth: number
+  season: Season
   onPin: (code: string | null) => void
 }
 
-function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearData, currentYearIndex, currentYear, plotWidth, onPin }: ScatterPlotProps) {
+function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearData, currentYearIndex, currentYear, plotWidth, season, onPin }: ScatterPlotProps) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -247,8 +230,10 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
   const labelled = new Set(
     [...yearData.countries].sort((a, b) => b.ratio - a.ratio).slice(0, 6).map(c => c.code)
   )
-  // Always show a label for the pinned country even if it's outside the top-6
+  // Always label the pinned country and the host country
   if (pinnedCode) labelled.add(pinnedCode)
+  const hostCode = (season === 'Summer' ? SUMMER_HOSTS : WINTER_HOSTS)[Number(currentYear)] ?? null
+  if (hostCode) labelled.add(hostCode)
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -319,13 +304,11 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
             const cx = xPos(c.gdp_per_capita)
             const cy = yPos(c.ratio)
             const r  = bubbleRadius(c.medal_count)
-            const isPinned  = c.code === pinnedCode
-            // Pinned country gets a guaranteed visible minimum so tiny bubbles
-            // (e.g. Kenya with few medals) are always clickable and noticeable.
-            const displayR  = isPinned ? Math.max(r + 3, 16) : r
+            const isPinned = c.code === pinnedCode
+            const displayR = isPinned ? Math.max(r + 3, 16) : r
             return (
               <g key={c.code}>
-                {/* Pulsing attention rings — only for the pinned bubble */}
+                {/* Pulsing rings for pinned bubble */}
                 {isPinned && (
                   <>
                     <circle cx={cx} cy={cy} r={displayR + 11}
@@ -701,6 +684,7 @@ export default function GapminderScatter() {
             currentYearIndex={yearIndex}
             currentYear={currentYear}
             plotWidth={plotWidth}
+            season={season}
             onPin={setPinnedCode}
           />
           {/* How-to-use strip */}
