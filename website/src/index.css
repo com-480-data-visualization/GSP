@@ -78,3 +78,23 @@ p {
 button {
   font-family: var(--font-sans);
 }
+
+/* ── Scroll-progress bar ────────────────────────────────────────────────── */
+@keyframes progress-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px 4px rgba(245, 158, 11, 0.65); }
+  50%       { box-shadow: 0 0 18px 9px rgba(245, 158, 11, 0.95); }
+}
+
+.scroll-progress-dot {
+  animation: progress-glow-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── Pinned-country pulse rings in GapminderScatter ─────────────────────── */
+@keyframes pinned-pulse-ring {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 0.08; }
+}
+
+.pinned-pulse-ring {
+  animation: pinned-pulse-ring 1.8s ease-in-out infinite;
+}

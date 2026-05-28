@@ -79,6 +79,109 @@ const HINTS = [
   { glyph: '▶', label: 'Play', detail: 'to animate through history from 1960-2024' },
 ]
 
+// ─── Insight callouts (guided moments) ───────────────────────────────────────
+
+interface InsightItem {
+  emoji:    string
+  prompt:   string
+  text:     string
+  pinCode?: string   // IOC code — clicking auto-pins this country on the chart
+  season?:  Season   // if set, card only appears in this season; undefined = both
+}
+
+const SCATTER_INSIGHTS: InsightItem[] = [
+  {
+    emoji:  '🗓',
+    prompt: 'Try years 1972–1988',
+    text:   'Drag the slider to the 1970s–80s and look for the biggest outlier. East Germany (GDR) sits far above the expected line — a state-sponsored sport machine winning 3–5× its predicted medals.',
+  },
+  {
+    emoji:  '🏠',
+    prompt: 'Host country boost',
+    text:   'Press ▶ Play and watch the host nation spike above their expected line the year they host — home advantage is real, but it fades quickly once the games move on.',
+  },
+  {
+    emoji:  '📍',
+    prompt: 'Trace Jamaica 🇯🇲',
+    text:   'Tiny island of 3M people — barely a bubble before 2008, then Usain Bolt arrives and Jamaica rockets to 8× expected in 2012. The most dramatic single-country rise in the dataset.',
+    pinCode: 'JAM',
+    season:  'Summer',
+  },
+  {
+    emoji:  '📍',
+    prompt: 'Trace Italy 🇮🇹',
+    text:   'Wealthy country, large bubble — yet also above expectations. Deep multi-sport culture (cycling, fencing, swimming) keeps Italy punching above even its rich-country weight.',
+    pinCode: 'ITA',
+    season:  'Summer',
+  },
+  {
+    emoji:  '📍',
+    prompt: 'Trace Norway ❄️',
+    text:   'Despite one of the world\'s highest GDPs, Norway wins 3–6× more medals than any model predicts. In 2018 they took 39 medals — the most ever by one nation in a single Winter Games.',
+    pinCode: 'NOR',
+    season:  'Winter',
+  },
+]
+
+function InsightPanel({ onPin, season }: { onPin: (code: string | null) => void; season: Season }) {
+  // Cards without a season tag show in both; tagged cards only appear in their season
+  const visible = SCATTER_INSIGHTS.filter(i => !i.season || i.season === season)
+  return (
+    <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      {visible.map(({ emoji, prompt, text, pinCode }) => (
+        <div
+          key={prompt}
+          onClick={pinCode ? () => onPin(pinCode) : undefined}
+          style={{
+            flex:        '1 1 200px',
+            background:  'var(--bg-elev)',
+            border:      '1px solid var(--border-soft)',
+            borderRadius: 8,
+            padding:     '10px 14px',
+            display:     'flex',
+            gap:         10,
+            alignItems:  'flex-start',
+            cursor:      pinCode ? 'pointer' : 'default',
+            transition:  'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={e => {
+            if (!pinCode) return
+            const el = e.currentTarget as HTMLDivElement
+            el.style.borderColor = 'var(--accent)'
+            el.style.background  = 'var(--bg-panel)'
+          }}
+          onMouseLeave={e => {
+            if (!pinCode) return
+            const el = e.currentTarget as HTMLDivElement
+            el.style.borderColor = 'var(--border-soft)'
+            el.style.background  = 'var(--bg-elev)'
+          }}
+        >
+          <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1.3 }}>{emoji}</span>
+          <div>
+            <div style={{
+              fontSize:     'var(--fs-xs)',
+              fontWeight:   'var(--fw-bold)',
+              color:        'var(--accent-soft)',
+              marginBottom: 3,
+            }}>
+              {prompt}
+            </div>
+            <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', lineHeight: 1.55 }}>
+              {text}
+            </div>
+            {pinCode && (
+              <div style={{ marginTop: 6, fontSize: 'var(--fs-xs)', color: 'var(--accent)', fontWeight: 'var(--fw-semi)' }}>
+                Click to pin →
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Scatter plot ─────────────────────────────────────────────────────────────
 
 interface TooltipState {
@@ -144,6 +247,8 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
   const labelled = new Set(
     [...yearData.countries].sort((a, b) => b.ratio - a.ratio).slice(0, 6).map(c => c.code)
   )
+  // Always show a label for the pinned country even if it's outside the top-6
+  if (pinnedCode) labelled.add(pinnedCode)
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -214,36 +319,57 @@ function ScatterPlot({ yearData, gdpMin, gdpMax, ratioMax, pinnedCode, allYearDa
             const cx = xPos(c.gdp_per_capita)
             const cy = yPos(c.ratio)
             const r  = bubbleRadius(c.medal_count)
-            const isPinned = c.code === pinnedCode
+            const isPinned  = c.code === pinnedCode
+            // Pinned country gets a guaranteed visible minimum so tiny bubbles
+            // (e.g. Kenya with few medals) are always clickable and noticeable.
+            const displayR  = isPinned ? Math.max(r + 3, 16) : r
             return (
-              <circle
-                key={c.code}
-                cx={cx} cy={cy}
-                r={isPinned ? r + 3 : r}
-                fill={zscoreColor(c.zscore)}
-                stroke={isPinned ? '#fff' : 'rgba(0,0,0,0.25)'}
-                strokeWidth={isPinned ? 2 : 0.8}
-                style={{ transition: 'cx 0.6s ease, cy 0.6s ease', cursor: 'pointer' }}
-                opacity={pinnedCode && !isPinned ? 0.45 : 0.88}
-                onMouseMove={e => handleMouseMove(e, c)}
-                onMouseLeave={() => setTooltip(null)}
-                onClick={() => onPin(isPinned ? null : c.code)}
-              />
+              <g key={c.code}>
+                {/* Pulsing attention rings — only for the pinned bubble */}
+                {isPinned && (
+                  <>
+                    <circle cx={cx} cy={cy} r={displayR + 11}
+                      fill="none" stroke="#f59e0b" strokeWidth={2}
+                      className="pinned-pulse-ring"
+                      style={{ pointerEvents: 'none' }} />
+                    <circle cx={cx} cy={cy} r={displayR + 22}
+                      fill="none" stroke="#f59e0b" strokeWidth={1}
+                      className="pinned-pulse-ring"
+                      style={{ pointerEvents: 'none', animationDelay: '0.5s' }} />
+                  </>
+                )}
+                <circle
+                  cx={cx} cy={cy}
+                  r={displayR}
+                  fill={zscoreColor(c.zscore)}
+                  stroke={isPinned ? '#fff' : 'rgba(0,0,0,0.25)'}
+                  strokeWidth={isPinned ? 2 : 0.8}
+                  style={{ transition: 'cx 0.6s ease, cy 0.6s ease', cursor: 'pointer' }}
+                  opacity={pinnedCode && !isPinned ? 0.45 : 0.88}
+                  onMouseMove={e => handleMouseMove(e, c)}
+                  onMouseLeave={() => setTooltip(null)}
+                  onClick={() => onPin(isPinned ? null : c.code)}
+                />
+              </g>
             )
           })}
 
-          {/* Labels for top over-performers */}
+          {/* Labels for top over-performers + pinned country */}
           {yearData.countries
             .filter(c => labelled.has(c.code))
             .map(c => {
-              const cx = xPos(c.gdp_per_capita)
-              const cy = yPos(c.ratio)
-              const r  = bubbleRadius(c.medal_count)
+              const cx        = xPos(c.gdp_per_capita)
+              const cy        = yPos(c.ratio)
+              const r         = bubbleRadius(c.medal_count)
+              const isPinned  = c.code === pinnedCode
+              const displayR  = isPinned ? Math.max(r + 3, 16) : r
               const shortName = c.country.length > 14 ? c.country.split(' ')[0] : c.country
               return (
                 <text key={`lbl-${c.code}`}
-                  x={cx + r + 3} y={cy + 4}
-                  fill="#cbd5e1" fontSize={9.5}
+                  x={cx + displayR + 4} y={cy + 4}
+                  fill={isPinned ? '#fbbf24' : '#cbd5e1'}
+                  fontSize={isPinned ? 11 : 9.5}
+                  fontWeight={isPinned ? 'bold' : 'normal'}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}>
                   {shortName}
                 </text>
@@ -451,6 +577,17 @@ export default function GapminderScatter() {
     setIsPlaying(p => !p)
   }
 
+  // Used by InsightPanel — pins a country, rewinds to year 0, and auto-plays.
+  const handleInsightPin = (code: string | null) => {
+    setPinnedCode(code)
+    if (code) {
+      setYearIndex(0)      // always rewind to the first year of the current season
+      setIsPlaying(true)   // auto-play so the story unfolds immediately
+    } else {
+      setIsPlaying(false)
+    }
+  }
+
   if (!data || !currentYearData) {
     return (
       <div style={{ color: 'var(--text-dim)', padding: '2rem', textAlign: 'center', fontFamily: 'var(--font-sans)' }}>
@@ -591,6 +728,9 @@ export default function GapminderScatter() {
               </span>
             ))}
           </div>
+
+          {/* Guided insights */}
+          <InsightPanel onPin={handleInsightPin} season={season} />
         </div>
       </div>
 

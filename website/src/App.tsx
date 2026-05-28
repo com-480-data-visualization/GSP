@@ -9,12 +9,18 @@ import OurMethodology from './components/OurMethodology'
 
 function App() {
   const { width: W, height: H } = useWindowSize()
-  const [scrollY, setScrollY] = useState(0)
+  const [scrollY,        setScrollY]        = useState(0)
+  const [scrollProgress, setScrollProgress] = useState(0)
   const globeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => {
+      const y     = window.scrollY
+      const total = document.documentElement.scrollHeight - window.innerHeight
+      setScrollY(y)
+      setScrollProgress(total > 0 ? y / total : 0)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -25,6 +31,44 @@ function App() {
 
   return (
     <div style={{ background: 'var(--bg)' }}>
+
+      {/* ── Vertical scroll progress bar ────────────────────────────────── */}
+      <div style={{
+        position:      'fixed',
+        right:         20,
+        top:           0,
+        bottom:        0,
+        width:         7,
+        zIndex:        9990,
+        background:    'rgba(255,255,255,0.10)',
+        pointerEvents: 'none',
+        borderRadius:  4,
+      }}>
+        <div style={{
+          position:   'absolute',
+          top:        0,
+          left:       0,
+          width:      '100%',
+          height:     `${scrollProgress * 100}%`,
+          background: 'linear-gradient(180deg, #3b82f6 0%, #7c3aed 45%, #f59e0b 100%)',
+          transition: 'height 0.1s linear',
+          boxShadow:  '0 0 10px 2px rgba(124,58,237,0.55)',
+        }}>
+          {/* Glowing pulse dot at the tip */}
+          {scrollProgress > 0.01 && (
+            <div className="scroll-progress-dot" style={{
+              position:     'absolute',
+              bottom:       -6,
+              left:         '50%',
+              transform:    'translateX(-50%)',
+              width:        12,
+              height:       12,
+              borderRadius: '50%',
+              background:   '#f59e0b',
+            }} />
+          )}
+        </div>
+      </div>
 
       {/* ── Aspect-ratio warning overlay ────────────────────────────────── */}
       {!ratioOk && (

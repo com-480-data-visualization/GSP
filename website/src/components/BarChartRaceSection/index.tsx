@@ -20,7 +20,7 @@ interface Props {
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const SIDE_MARGIN = 48   // px gutter on each side
-const HEADER_H    = 165  // px for title + subtitle + controls strip
+const HEADER_H    = 230  // px for title + subtitle + insight + controls strip
 
 export default function BarChartRaceSection({ width, height }: Props) {
   const [season,        setSeason]        = useState<Season>('Summer')
@@ -80,7 +80,7 @@ export default function BarChartRaceSection({ width, height }: Props) {
         // the viewport wide. Patching --base-font-size corrects text scaling.
         const patchContainer = (el: HTMLElement) => {
           el.style.setProperty('background-color', 'var(--bg)', 'important')
-          el.style.setProperty('--base-font-size', 'max(0.55vw, 11px)')
+          el.style.setProperty('--base-font-size', 'max(0.45vw, 10px)')
           const child = el.firstElementChild as HTMLElement | null
           if (child) child.style.setProperty('background-color', 'var(--bg)', 'important')
         }
@@ -95,6 +95,7 @@ export default function BarChartRaceSection({ width, height }: Props) {
           dateCounter:    () => '',   // we render the year ourselves next to the slider
           showIcons:      false,
           labelsPosition: 'outside' as const,
+          labelsWidth:    200,        // wide enough for "Russian Federation" at any font size
           colorMap,
         }
 
@@ -231,6 +232,24 @@ export default function BarChartRaceSection({ width, height }: Props) {
           Left: total medals since 1960 &nbsp;·&nbsp; Right: actual ÷ expected medals &nbsp;·&nbsp;
           <span style={{ color: 'var(--accent)' }}>1 = on target</span>, higher = overperforming
         </span>
+
+        {/* Season-aware insight callout */}
+        <div style={{
+          background:   'rgba(245,158,11,0.10)',
+          border:       '1px solid rgba(245,158,11,0.35)',
+          borderRadius: 8,
+          padding:      '7px 18px',
+          fontSize:     'var(--fs-sm)',
+          fontWeight:   'var(--fw-semi)',
+          color:        'rgba(255,255,255,0.92)',
+          maxWidth:     600,
+          textAlign:    'center',
+          lineHeight:   1.55,
+        }}>
+          💡&nbsp;{season === 'Summer'
+            ? <><span style={{ color: '#fbbf24' }}>Cuba &amp; Hungary</span> sit near the top of the right chart despite rarely leading the left — efficiency tells a very different story.</>
+            : <><span style={{ color: '#fbbf24' }}>Norway &amp; Finland</span> dominate the right chart — their efficiency lead far outstrips their absolute medal count on the left.</>}
+        </div>
 
         {/* Season + speed toggles */}
         <div style={{ display: 'flex', gap: 10 }}>
