@@ -1,81 +1,37 @@
 # Project of Data Visualization (COM-480)
 
+![GSP Hero](./MS3/figures/GSP-image.png)
+
 | Student's name | SCIPER |
 | -------------- | ------ |
-| Mohamed Mamouri| 362231|
-| Fares Fawzi| 337530|
-| Dominik Glandorf| 397208|
+| Mohamed Mamouri | 362231 |
+| Fares Fawzi | 337530 |
+| Dominik Glandorf | 397208 |
 
-[Milestone 1](./MS1/README.md) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
+## Final Deliverables 📦
 
-## Milestone 1 (20th March, 5pm)
-[Link to our Report](./MS1/README.md)
+- 🌐 [Website](https://com-480-data-visualization.github.io/GSP/)
+- 📘 [Process Book](./MS3/ProcessBook_GSP.pdf)
+- 🎬 [Screencast](./MS3/screencast.mov)
 
-## Milestone 2 (17th April, 5pm)
+## Repository Structure 🗂️
 
-[Link to our Report](./MS2/README.md)
-
-
-## Milestone 3 (29th May, 5pm)
-
-[Link to our Process Book](./MS3/ProcessBook_GSP.pdf)
-
-[Link to our Final Website](https://com-480-data-visualization.github.io/GSP/)
-
-[Link to our Screencast](./MS3/screencast.mov)
-
-# Setup
-
-## Python (data processing)
-
-This project uses Python 3.13 for data processing scripts. We recommend using a virtual environment:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt   # pandas, numpy, seaborn
+```text
+.
+├── MS1/                         # Milestone 1 report + early analysis
+├── MS2/                         # Milestone 2 report + design drafts
+├── MS3/                         # Milestone 3 assets (process book, screencast, figures)
+├── data/                        # Raw + merged datasets used in analysis/pipeline
+├── figures/                     # Static figures used in reports
+├── src/                         # Python data-preparation scripts
+├── website/                     # React + TypeScript + Vite web app
+├── requirements.txt             # Python dependencies
+└── README.md
 ```
 
-### Source files (`src/`)
+### Frontend Source Tree 🌿
 
-| File | Purpose |
-|---|---|
-| `src/generate_gapminder.py` | Main pipeline — reads the two merged GDP CSVs, fits a per-year log-log regression (`log(medals) = α·log(gdp_per_capita) + β·log(population) + γ`), computes z-scores and actual/expected ratios, and writes `website/public/data/gapminder_scatter.json` |
-| `src/utils.py` | IOC 3-letter → World Bank / ISO-3 country code mapping table (handles historical codes like URS→RUS, GDR→DEU, etc.) |
-
-To regenerate the main dataset after changing the model or source data:
-
-```bash
-python src/generate_gapminder.py
-```
-
-### Raw data (`data/`)
-
-| File / folder | Description |
-|---|---|
-| `data/olympic_medals.csv` | Raw Olympic results — one row per medal event (season, year, medal type, IOC code, country, sport, event) |
-| `data/olympics_gdp_merged.csv` | Medals joined with World Bank GDP per capita — primary regression input |
-| `data/olympics_gdp_current_usd_merged.csv` | Same join but with total GDP in current USD — used to derive population (`population = total_gdp / gdp_per_capita`) |
-| `data/gdp_per_capita/` | Raw World Bank GDP per capita dataset (CSV download) |
-| `data/gdp_absolute/` | Raw World Bank total GDP dataset (CSV download) |
-| `data/summer_efficiency.csv` | Pre-computed per-window efficiency rankings for Summer Olympics |
-| `data/winter_efficiency.csv` | Same for Winter Olympics |
-
-## Website (frontend)
-
-The website is a React + TypeScript app built with Vite. Requires **Node.js ≥ 18** and **npm ≥ 9**.
-
-```bash
-cd website
-npm install
-npm run dev       # local dev server at http://localhost:5173
-npm run build     # production build → dist/
-npm run deploy    # build + push to GitHub Pages
-```
-
-### Source structure
-
-```
+```text
 website/src/
 ├── types/
 │   └── olympics.ts                  # Shared data interfaces (GapminderData, Season, …)
@@ -101,3 +57,85 @@ website/src/
 ├── index.css                        # CSS custom properties (colors, typography)
 └── main.tsx                         # React entry point
 ```
+
+
+## Tech Stack 🛠️
+
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" width="18" alt="React" /> React
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vitejs/vitejs-original.svg" width="18" alt="Vite" /> Vite
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" width="18" alt="Python" /> Python
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pandas/pandas-original.svg" width="18" alt="Pandas" /> pandas
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/numpy/numpy-original.svg" width="18" alt="NumPy" /> numpy
+- <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/github/github-original.svg" width="18" alt="GitHub Pages" /> GitHub Pages (`gh-pages`)
+
+## How To Run 🚀
+
+### Prerequisites ✅
+
+- Git
+- Node.js (recommended: 18+)
+- npm (recommended: 9+)
+- Python (recommended: 3.10+)
+
+### Quick Setup ⚡
+
+```bash
+git clone https://github.com/com-480-data-visualization/GSP.git
+cd GSP
+
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+cd website
+npm install
+npm run dev
+```
+
+The website runs locally at `http://localhost:5173/GSP/`.
+
+## Deployment 🚢
+
+We deploy using GitHub Pages from the `website/` folder:
+
+```bash
+cd website
+npm run deploy
+```
+
+This builds the app and publishes `website/dist` via `gh-pages`.
+
+## Data Preparation Instructions 🧪
+
+The project already includes local copies of the required datasets in [`data/`](./data), so the website can run without re-downloading data.
+
+External data sources and acquisition notes are documented in [`MS1/README.md`](./MS1/README.md).
+
+### How We Merged The Data 🔗
+
+1. The core merged inputs are [`data/olympics_gdp_merged.csv`](./data/olympics_gdp_merged.csv) and [`data/olympics_gdp_current_usd_merged.csv`](./data/olympics_gdp_current_usd_merged.csv).
+2. In [`src/generate_gapminder.py`](./src/generate_gapminder.py), we merge those two files by `gdp_country_code`, `year`, and `season`, then derive population using `population = gdp_current_usd / gdp_per_capita`.
+3. The same script aggregates split-country rows with the same code/year/season (for example historical Germany rows) in `merge_shared_codes`.
+
+### How We Harmonized Country Names/Codes 🌍
+
+- [`src/utils.py`](./src/utils.py): IOC 3-letter to ISO3/World Bank code fixes (`code_fix`) used in preprocessing.
+- [`website/src/data/countryMaps.ts`](./website/src/data/countryMaps.ts): frontend mapping for display names and flag rendering.
+
+### Output Used By The Website 📄
+
+- Generated file: [`website/public/data/gapminder_scatter.json`](./website/public/data/gapminder_scatter.json)
+- Produced by: [`src/generate_gapminder.py`](./src/generate_gapminder.py)
+
+## Reproduction ♻️
+
+To reproduce the main processed JSON used by the web app:
+
+```bash
+python src/generate_gapminder.py
+```
+
+This regenerates [`website/public/data/gapminder_scatter.json`](./website/public/data/gapminder_scatter.json) from local CSV inputs in [`data/`](./data).
+
+If you want to fully rebuild from external sources, follow the dataset links and notes in [`MS1/README.md`](./MS1/README.md), then run the same preprocessing command above.

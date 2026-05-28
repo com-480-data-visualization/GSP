@@ -7,7 +7,7 @@ After settling on the visualizations, we built the website as a single-page scro
 - React + TypeScript: The whole site is a React single-page app in TypeScript for type safety and reusable, maintainable components.
 - Vite: A fast modern build tool for development and bundling, giving instant live reload while iterating on the charts.
 - WebGL / SVG: The two globes are rendered in WebGL via *react-globe.gl* (Three.js under the hood), while the scatter plot and methodology charts are drawn directly as SVG with custom scales and log axes.
-- Specialised libraries: racing-bars (the bar chart race) and framer-motion (layout animation).
+- Specialised libraries: [`racing-bars`](https://racing-bars.hatemhosny.dev/) (the bar chart race) and framer-motion (layout animation).
 - Python · pandas / NumPy: Milestone-1 analysis and all pre-processing: code reconciliation, merging, deriving population, and fitting the per-event regressions exported to the site.
 - GitHub Pages: We host the site on GitHub Pages - permanently online with no server to maintain. Deployment is a single **npm run deploy** that builds and pushes to the gh-pages branch.
 
