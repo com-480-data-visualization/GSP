@@ -35,9 +35,33 @@ export default function BarChartRaceSection({ width, height }: Props) {
   const c2 = useRef<HTMLDivElement>(null)
   const r1 = useRef<RaceAPI | null>(null)
   const r2 = useRef<RaceAPI | null>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const hasEnteredView = useRef(false)
+  const [inView, setInView] = useState(false)
 
   const half   = Math.floor((width - SIDE_MARGIN * 2) / 2)
   const chartH = height - HEADER_H - 60   // fill available space with 60px bottom breathing room
+
+  // ── Observe section visibility so the race only starts on scroll ──────────
+  useEffect(() => {
+    if (!sectionRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.3 },
+    )
+    observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  // Kick off playback the first time the section becomes visible.
+  useEffect(() => {
+    if (!inView || hasEnteredView.current) return
+    if (!r1.current || !r2.current || allDates.length === 0) return
+    hasEnteredView.current = true
+    r1.current.play()
+    r2.current.play()
+    setPlaying(true)
+  }, [inView, allDates])
 
   // ── Inject background override once on mount ────────────────────────────────
   // racing-bars forces a dark background on its root element. We override with
@@ -137,11 +161,13 @@ export default function BarChartRaceSection({ width, height }: Props) {
             setDateIdx(idx)
           })
 
-          window.requestAnimationFrame(() => {
-            r1.current?.play()
-            r2.current?.play()
-            setPlaying(true)
-          })
+          if (hasEnteredView.current) {
+            window.requestAnimationFrame(() => {
+              r1.current?.play()
+              r2.current?.play()
+              setPlaying(true)
+            })
+          }
         }
       })
 
@@ -201,7 +227,7 @@ export default function BarChartRaceSection({ width, height }: Props) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{
+    <div ref={sectionRef} style={{
       position:   'sticky',
       top:        0,
       width,

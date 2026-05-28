@@ -34,7 +34,7 @@ function zscoreLabel(z: number): string {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MARGIN     = { top: 24, right: 24, bottom: 56, left: 64 }
-const PLOT_H     = 520
+const PLOT_H     = 460
 const GDP_TICKS  = [100, 300, 1000, 3000, 10000, 30000, 100000]
 const RATIO_TICKS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
@@ -479,28 +479,9 @@ export default function GapminderScatter() {
           blue bubbles underperform relative to their wealth and population.
         </p>
 
-        {/* Season toggle + pinned indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {(['Summer', 'Winter'] as Season[]).map(s => (
-              <button
-                key={s}
-                onClick={() => handleSeasonChange(s)}
-                style={{
-                  padding: '0.4rem 1.2rem', borderRadius: 6,
-                  border: '2px solid var(--accent)',
-                  background: season === s ? 'var(--accent)' : 'transparent',
-                  color: season === s ? '#fff' : 'var(--accent)',
-                  fontFamily: 'var(--font-sans)', fontWeight: 'var(--fw-semi)',
-                  cursor: 'pointer', fontSize: 'var(--fs-sm)',
-                }}
-              >
-                {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
-              </button>
-            ))}
-          </div>
-
-          {pinnedCode && (
+        {/* Pinned indicator */}
+        {pinnedCode && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 6,
               background: 'var(--bg-panel)', border: '1px solid var(--gold)',
@@ -517,12 +498,12 @@ export default function GapminderScatter() {
                 ✕
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         </div>{/* end aboveSliderRef */}
 
-        {/* Year slider */}
+        {/* Year slider + season toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', maxWidth: svgTotalW }}>
           <span style={{
             fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-bold)', color: 'var(--text)',
@@ -550,6 +531,24 @@ export default function GapminderScatter() {
             style={{ flex: 1, accentColor: 'var(--accent)' }}
           />
           <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', flexShrink: 0 }}>{years[years.length - 1]}</span>
+          <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, marginLeft: '0.5rem' }}>
+            {(['Summer', 'Winter'] as Season[]).map(s => (
+              <button
+                key={s}
+                onClick={() => handleSeasonChange(s)}
+                style={{
+                  padding: '0.4rem 1rem', borderRadius: 6,
+                  border: '2px solid var(--accent)',
+                  background: season === s ? 'var(--accent)' : 'transparent',
+                  color: season === s ? '#fff' : 'var(--accent)',
+                  fontFamily: 'var(--font-sans)', fontWeight: 'var(--fw-semi)',
+                  cursor: 'pointer', fontSize: 'var(--fs-sm)',
+                }}
+              >
+                {s === 'Summer' ? '☀️ Summer' : '❄️ Winter'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Chart — column wrapper guarantees legend is always above the SVG */}
