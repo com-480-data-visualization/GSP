@@ -20,7 +20,7 @@ interface Props {
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const SIDE_MARGIN = 48   // px gutter on each side
-const HEADER_H    = 210  // px for title + subtitle + controls strip
+const HEADER_H    = 165  // px for title + subtitle + controls strip
 
 export default function BarChartRaceSection({ width, height }: Props) {
   const [season,        setSeason]        = useState<Season>('Summer')
@@ -227,14 +227,10 @@ export default function BarChartRaceSection({ width, height }: Props) {
         <h2 style={{ color: 'var(--text)', fontSize: 'var(--fs-xl)', fontWeight: 'var(--fw-semi)', marginBottom: '0.25rem' }}>
           Olympic efficiency over time
         </h2>
-        <span style={{ color: 'var(--text)', fontWeight: 'var(--fw-semi)', fontSize: 'var(--fs-md)' }}>
-          Which countries exceed expectations?
+        <span style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)' }}>
+          Left: total medals since 1960 &nbsp;·&nbsp; Right: actual ÷ expected medals &nbsp;·&nbsp;
+          <span style={{ color: 'var(--accent)' }}>1 = on target</span>, higher = overperforming
         </span>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center', color: 'var(--text-muted)', fontSize: 'var(--fs-sm)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span>Efficiency = cumulative actual medals / cumulative expected medals</span>
-          <span style={{ color: 'var(--accent)', fontWeight: 'var(--fw-semi)' }}>1 = expected</span>
-          <span>Higher = outperforming</span>
-        </div>
 
         {/* Season + speed toggles */}
         <div style={{ display: 'flex', gap: 10 }}>

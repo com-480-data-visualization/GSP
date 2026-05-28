@@ -63,21 +63,26 @@ const GLOBE2_COUNTRIES: CountryMarker[] = [
   { name: 'Hungary', key: 'Hungary', lat: 49, lng: 19.5 },
 ]
 
+// Precomputed gradient stops for the bronze→silver→gold legend
+const MEDAL_GRADIENT = (() => {
+  const stops = [0, 0.25, 0.5, 0.75, 1].map(t => medalColor(t))
+  return `linear-gradient(90deg, ${stops.map((c, i) => `${c} ${i * 25}%`).join(', ')})`
+})()
+
 function makeMarkerElement(label: string): HTMLDivElement {
   const el = document.createElement('div')
   el.style.cssText = [
     'pointer-events: none',
-    'transform: translate(-50%, -100%)',
-    'text-align: center',
-    'color: var(--text)',
-    'font-family: var(--font-sans)',
-    'font-size: var(--fs-sm)',
-    'font-weight: var(--fw-semi)',
-    'text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.9)',
-    'white-space: nowrap',
-    'line-height: 1',
+    'transform: translate(-50%, -130%)',
+    'display: flex',
+    'flex-direction: column',
+    'align-items: center',
+    'gap: 3px',
   ].join(';')
-  el.innerHTML = `<div style="margin-bottom:2px">${label}</div><div style="font-size:var(--fs-md);line-height:1">▼</div>`
+  el.innerHTML = `
+    <div style="background:rgba(0,0,0,0.72);color:#fff;font-family:system-ui,sans-serif;font-size:11px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:10px;line-height:1.4;border:1px solid rgba(255,255,255,0.25)">${label}</div>
+    <div style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.8)"></div>
+  `
   return el
 }
 
@@ -274,15 +279,28 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           left: globeWidth * 0.1,
           width: globeWidth * 0.8,
           textAlign: 'center',
-          color: 'var(--text)',
-          fontSize: 'var(--fs-md)',
-          fontFamily: 'var(--font-sans)',
-          fontWeight: 'var(--fw-semi)',
           pointerEvents: 'none',
           zIndex: 1,
-          textShadow: '0 1px 4px rgba(0,0,0,0.8)',
         }}>
-          Counting all medals, the most successful countries at the Olympics are believed to be the US, China and Germany.
+          <div style={{
+            color: 'var(--text)',
+            fontSize: 'var(--fs-md)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 'var(--fw-semi)',
+            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+          }}>
+            By raw medals — USA, China and Germany dominate.
+          </div>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 8,
+          }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'system-ui' }}>Fewer</span>
+            <div style={{ width: 64, height: 5, borderRadius: 3, background: MEDAL_GRADIENT }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'system-ui' }}>More medals</span>
+          </div>
         </div>
         <div style={{
           position: 'absolute',
@@ -328,7 +346,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           {...baseProps}
           onGlobeReady={() => {
             globeEl.current.controls().enableZoom = false
-            globeEl.current.pointOfView({ lat: 0, lng: -30, altitude: 4 }, 5000)
+            globeEl.current.pointOfView({ lat: 0, lng: -30, altitude: 2.2 }, 5000)
           }}
           polygonCapColor={capColor.fn}
           polygonLabel={(feat: object) => {
@@ -359,15 +377,28 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           left: globeWidth * 0.1,
           width: globeWidth * 0.8,
           textAlign: 'center',
-          color: 'var(--text)',
-          fontSize: 'var(--fs-md)',
-          fontFamily: 'var(--font-sans)',
-          fontWeight: 'var(--fw-semi)',
           pointerEvents: 'none',
           zIndex: 1,
-          textShadow: '0 1px 4px rgba(0,0,0,0.8)',
         }}>
-          Looking at how countries perform relative to population and wealth, nations like Kenya and Hungary come out on top.
+          <div style={{
+            color: 'var(--text)',
+            fontSize: 'var(--fs-md)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 'var(--fw-semi)',
+            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+          }}>
+            Adjusted for wealth &amp; population — Kenya and Hungary rise to the top.
+          </div>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 8,
+          }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'system-ui' }}>Lower</span>
+            <div style={{ width: 64, height: 5, borderRadius: 3, background: MEDAL_GRADIENT }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'system-ui' }}>Higher efficiency</span>
+          </div>
         </div>
         <Globe
           ref={globeEl2}

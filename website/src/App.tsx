@@ -82,6 +82,31 @@ function App() {
         <KeyFindings />
       </div>
 
+      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      <footer style={{
+        padding: '2rem',
+        borderTop: '1px solid var(--border-soft)',
+        color: 'var(--text-dim)',
+        fontSize: 'var(--fs-xs)',
+      }}>
+        <div style={{
+          maxWidth: 1060, margin: '0 auto',
+          display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem',
+        }}>
+          <div>
+            <div style={{ fontWeight: 'var(--fw-semi)', color: 'var(--text-muted)', marginBottom: 4 }}>
+              Olympic Success of Countries — More Than Just Medals?
+            </div>
+            <div>COM-480 Data Visualisation · EPFL · 2024–2025</div>
+          </div>
+          <div>
+            <div style={{ fontWeight: 'var(--fw-semi)', color: 'var(--text-muted)', marginBottom: 4 }}>Data sources</div>
+            <div>Olympic medals: Kaggle / IOC (1896–2024)</div>
+            <div>GDP &amp; population: World Bank (1960–2024)</div>
+          </div>
+        </div>
+      </footer>
+
     </div>
   )
 }
