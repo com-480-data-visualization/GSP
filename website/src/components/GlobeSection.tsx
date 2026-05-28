@@ -120,14 +120,21 @@ function makeMarkerElement(label: string): HTMLDivElement {
   el.style.cssText = [
     'pointer-events: none',
     'transform: translate(-50%, -130%)',
-    'display: flex',
-    'flex-direction: column',
-    'align-items: center',
-    'gap: 3px',
+    'position: relative',
+    'background: rgba(0,0,0,0.72)',
+    'color: #fff',
+    'font-family: system-ui, sans-serif',
+    'font-size: 11px',
+    'font-weight: 600',
+    'white-space: nowrap',
+    'padding: 3px 8px',
+    'border-radius: 10px',
+    'line-height: 1.4',
+    'border: 1px solid rgba(255,255,255,0.25)',
   ].join(';')
   el.innerHTML = `
-    <div style="background:rgba(0,0,0,0.72);color:#fff;font-family:system-ui,sans-serif;font-size:11px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:10px;line-height:1.4;border:1px solid rgba(255,255,255,0.25)">${label}</div>
-    <div style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.8)"></div>
+    ${label}
+    <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.8)"></div>
   `
   return el
 }

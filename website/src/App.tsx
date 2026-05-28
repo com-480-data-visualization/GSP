@@ -96,7 +96,7 @@ function App() {
       {/* ── Globe ───────────────────────────────────────────────────────── */}
       {/* The inner 100vh div with overflow:hidden is required —
           it clips the WebGL canvas correctly. Do not remove it. */}
-      <div ref={globeRef} style={{ height: '150vh', position: 'relative' }}>
+      <div ref={globeRef} style={{ height: '220vh', position: 'relative' }}>
         <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'sticky', top: 0 }}>
           <GlobeSection width={W} height={H} split={globeSplit} />
         </div>
