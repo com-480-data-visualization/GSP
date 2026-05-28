@@ -74,9 +74,9 @@ website/src/
 ### Prerequisites ✅
 
 - Git
-- Node.js (recommended: 18+)
-- npm (recommended: 9+)
-- Python (recommended: 3.10+)
+- Node.js (recommended: v18+)
+- npm (recommended: v9+)
+- Python (recommended: v3.10+)
 
 ### Quick Setup ⚡
 
