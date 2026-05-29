@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import Globe from 'react-globe.gl'
-import { iso2ToFlagEmoji } from '../data/countryMaps'
 
 interface CountryProperties {
   ADMIN: string
@@ -341,16 +340,16 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
   const hoverCentroid = hoveredInfo ? (centroids[hoveredInfo.name] ?? null) : null
   const globe1HtmlData: GlobeHtmlItem[] = [
     ...globe1StaticMarkers,
-    ...(hoverCentroid
+    ...(hoverCentroid && hoveredInfo
       ? [{ kind: 'hover' as const, lat: hoverCentroid.lat, lng: hoverCentroid.lng,
-           line: `🥇 ${hMedals ?? 0} medals` }]
+           line: `${hoveredInfo.name} · 🥇 ${hMedals ?? 0} medals` }]
       : []),
   ]
   const globe2HtmlData: GlobeHtmlItem[] = [
     ...globe2StaticMarkers,
-    ...(hoverCentroid && hZscore != null
+    ...(hoverCentroid && hoveredInfo && hZscore != null
       ? [{ kind: 'hover' as const, lat: hoverCentroid.lat, lng: hoverCentroid.lng,
-           line: `⚡ ${hZscore >= 0 ? '+' : ''}${hZscore.toFixed(2)}σ efficiency` }]
+           line: `${hoveredInfo.name} · ⚡ ${hZscore >= 0 ? '+' : ''}${hZscore.toFixed(2)} relative performance` }]
       : []),
   ]
 
@@ -369,7 +368,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        const cy = height / 2
+        const cy = height / 2 + 40
         const r1 = height * 0.32
         const r2 = height * 0.42
         const g1cx = split ? width / 4 : width / 2
@@ -382,7 +381,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        const cy = height / 2
+        const cy = height / 2 + 40
         const r1 = height * 0.32
         const r2 = height * 0.42
         const g1cx = split ? width / 4 : width / 2
@@ -395,48 +394,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
       onMouseLeave={()  => { draggingRef.current = false; setCursor('auto') }}
     >
 
-      {/* ── Hover badge — bottom-centre, always visible above the fold ──────── */}
-      {hoveredInfo && (
-        <div style={{
-          position:       'absolute',
-          bottom:         56,
-          left:           '50%',
-          transform:      'translateX(-50%)',
-          background:     'rgba(0,10,30,0.92)',
-          backdropFilter: 'blur(8px)',
-          border:         '1px solid rgba(255,255,255,0.22)',
-          borderRadius:   10,
-          padding:        '8px 22px',
-          color:          '#fff',
-          fontFamily:     'system-ui, sans-serif',
-          zIndex:         20,
-          pointerEvents:  'none',
-          whiteSpace:     'nowrap',
-          display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'center',
-          gap:            4,
-        }}>
-          {/* Country name */}
-          <div style={{ fontWeight: 700, fontSize: 14 }}>
-            {iso2ToFlagEmoji(hoveredInfo.iso2)} {hoveredInfo.name}
-          </div>
-          {/* Both metrics side by side */}
-          <div style={{ display: 'flex', gap: 18, alignItems: 'center', fontSize: 12 }}>
-            <span>🥇 <b>{hMedals}</b> medals since 1960</span>
-            {hZscore != null && (
-              <>
-                <span style={{ color: 'rgba(255,255,255,0.28)' }}>|</span>
-                <span style={{ color: hZscore >= 0 ? '#f59e0b' : '#93c5fd' }}>
-                  ⚡ {hZscore >= 0 ? '+' : ''}{hZscore.toFixed(2)}σ efficiency
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Globe 1: starts centred, slides left on split ─────────────────── */}
+{/* ── Globe 1: starts centred, slides left on split ─────────────────── */}
       <div style={{
         position:   'absolute',
         top:        0,
@@ -503,7 +461,7 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
         {/* "Drag to explore" hint */}
         <div style={{
           position:   'absolute',
-          top:        '80%',
+          top:        '90%',
           right:      '10%',
           color:      'var(--text-soft)',
           fontSize:   'var(--fs-md)',
@@ -524,26 +482,24 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           Drag to explore
         </div>
 
-        <Globe
-          ref={globeEl}
-          {...baseProps}
-          onGlobeReady={() => {
-            globeEl.current.controls().enableZoom = false
-            globeEl.current.pointOfView({ lat: 0, lng: -30, altitude: 2.2 }, 5000)
-          }}
-          polygonCapColor={capColor.fn}
-          onPolygonHover={handlePolygonHover}
-          polygonLabel={(feat: object) => {
-            const { properties: d } = feat as CountryFeature
-            const total = medals[geoKey(d)] ?? 0
-            return `<div><b>${d.ADMIN}</b><br/>Total medals: <i>${total}</i></div>`
-          }}
-          htmlElementsData={globe1HtmlData}
-          htmlLat={(d: object) => (d as { lat: number }).lat}
-          htmlLng={(d: object) => (d as { lng: number }).lng}
-          htmlAltitude={(d: object) => (d as GlobeHtmlItem).kind === 'hover' ? 0.08 : 0.04}
-          htmlElement={htmlElementFactory}
-        />
+        <div style={{ transform: 'translateY(40px)' }}>
+          <Globe
+            ref={globeEl}
+            {...baseProps}
+            onGlobeReady={() => {
+              globeEl.current.controls().enableZoom = false
+              globeEl.current.pointOfView({ lat: 0, lng: -30, altitude: 2.2 }, 5000)
+            }}
+            polygonCapColor={capColor.fn}
+            onPolygonHover={handlePolygonHover}
+            polygonLabel={() => ''}
+            htmlElementsData={globe1HtmlData}
+            htmlLat={(d: object) => (d as { lat: number }).lat}
+            htmlLng={(d: object) => (d as { lng: number }).lng}
+            htmlAltitude={(d: object) => (d as GlobeHtmlItem).kind === 'hover' ? 0.08 : 0.04}
+            htmlElement={htmlElementFactory}
+          />
+        </div>
       </div>
 
       {/* ── Globe 2: starts off-screen right, slides in on split ──────────── */}
@@ -592,24 +548,21 @@ export default function GlobeSection({ width, height, split }: GlobeSectionProps
           </div>
         </div>
 
-        <Globe
-          ref={globeEl2}
-          {...baseProps}
-          onGlobeReady={() => { globeEl2.current.controls().enableZoom = false }}
-          polygonCapColor={capColor2.fn}
-          onPolygonHover={handlePolygonHover}
-          polygonLabel={(feat: object) => {
-            const { properties: d } = feat as CountryFeature
-            const z    = avgZscore[geoKey(d)]
-            const zStr = z != null ? z.toFixed(2) : 'N/A'
-            return `<div><b>${d.ADMIN}</b><br/>Relative performance: <i>${zStr}</i></div>`
-          }}
-          htmlElementsData={globe2HtmlData}
-          htmlLat={(d: object) => (d as { lat: number }).lat}
-          htmlLng={(d: object) => (d as { lng: number }).lng}
-          htmlAltitude={(d: object) => (d as GlobeHtmlItem).kind === 'hover' ? 0.08 : 0.04}
-          htmlElement={htmlElementFactory}
-        />
+        <div style={{ transform: 'translateY(40px)' }}>
+          <Globe
+            ref={globeEl2}
+            {...baseProps}
+            onGlobeReady={() => { globeEl2.current.controls().enableZoom = false }}
+            polygonCapColor={capColor2.fn}
+            onPolygonHover={handlePolygonHover}
+            polygonLabel={() => ''}
+            htmlElementsData={globe2HtmlData}
+            htmlLat={(d: object) => (d as { lat: number }).lat}
+            htmlLng={(d: object) => (d as { lng: number }).lng}
+            htmlAltitude={(d: object) => (d as GlobeHtmlItem).kind === 'hover' ? 0.08 : 0.04}
+            htmlElement={htmlElementFactory}
+          />
+        </div>
       </div>
 
     </div>
