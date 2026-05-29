@@ -139,3 +139,7 @@ python src/generate_gapminder.py
 This regenerates [`website/public/data/gapminder_scatter.json`](./website/public/data/gapminder_scatter.json) from local CSV inputs in [`data/`](./data).
 
 If you want to fully rebuild from external sources, follow the dataset links and notes in [`MS1/README.md`](./MS1/README.md), then run the same preprocessing command above.
+
+### AI usage
+
+We acknowledge the use of AI for assisting with the implementation of the website and the data processing pipeline. AI tools were used to generate boilerplate code, suggest optimizations, and help with debugging. All AI-generated code was reviewed and tested by the team to ensure correctness and quality.
