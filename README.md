@@ -12,7 +12,7 @@
 
 - 🌐 [Website](https://com-480-data-visualization.github.io/GSP/)
 - 📘 [Process Book](./MS3/ProcessBook_GSP.pdf)
-- 🎬 [Screencast](./MS3/screencast.mov)
+- 🎬 [Screencast](https://drive.google.com/file/d/1p8uxGZdZaCOCJREh2ywhbeHj5lw5qWTF/view)
 
 ## Repository Structure 🗂️
 
