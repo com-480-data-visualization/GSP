@@ -141,7 +141,7 @@ function App() {
             <div style={{ fontWeight: 'var(--fw-semi)', color: 'var(--text-muted)', marginBottom: 4 }}>
               Olympic Success of Countries — More Than Just Medals?
             </div>
-            <div>COM-480 Data Visualisation · EPFL · 2024–2025</div>
+            <div>COM-480 Data Visualisation · EPFL · 2025–2026</div>
           </div>
           <div>
             <div style={{ fontWeight: 'var(--fw-semi)', color: 'var(--text-muted)', marginBottom: 4 }}>Data sources</div>
